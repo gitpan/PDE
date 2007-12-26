@@ -1,0 +1,480 @@
+;;; perldoc.el --- 
+
+;; Copyright 2007 Ye Wenbin
+;;
+;; Author: wenbinye@gmail.com
+;; Version: $Id: perldoc.el,v 0.0 2007/08/22 19:49:58 ywb Exp $
+;; Keywords: 
+;; X-URL: not distributed yet
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, write to the Free Software
+;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+;;; Commentary:
+
+;; Put this file into your load-path and the following into your ~/.emacs:
+;;   (require 'perldoc)
+;;   (perldoc-recache-everyday)    ; this is optional
+;;   (add-hook 'cperl-mode-hook
+;;             (lambda () (help-dwim-active-type 'perldoc)))
+
+;;; Code:
+
+(eval-when-compile
+  (require 'cl))
+(require 'woman)
+(require 'pde-vars)
+(require 'tree-widget)
+(require 'tree-mode)
+(require 'windata)
+
+(defgroup perldoc nil
+  "Search document using perldoc"
+  :group 'tools)
+
+(defvar perldoc-cache-el
+  (expand-file-name "tools/perldoc-cache.el" pde-load-path)
+  "*Cache file name for build `perldoc-obarray'.")
+
+(defvar perldoc-cache-pl
+  (expand-file-name "tools/perldoc-cache.pl" pde-load-path)
+  "*Perl script to generate `perldoc-cache-el'")
+
+(defvar perldoc-pod2man "pod2man"
+  "*Program name of pod2man")
+
+(defvar perldoc-buffer-format "*WoMan Perldoc %S*"
+  "*Buffer name for perldoc buffer.")
+
+(defvar perldoc-module-chars "0-9a-zA-Z_:."
+  "*Characters may occur in perl module name.")
+
+(defvar perldoc-obarray nil
+  "All perl modules name and functions.
+Functions in obarray have a value, can be predicated by `boundp'.
+Modules are only interned. Pragmas are listed in
+`perldoc-pragmas'. And core document can be recognize by prefix
+\"perl\". Note that \"open\" and \"sort\" are known as function
+and pragma, the pragma is add \".pod\" to distinguish from function.")
+
+(defvar perldoc-tree-buffer "*Perldoc*"
+  "*Buffer name for `perldoc-tree'")
+
+(defvar perldoc-tree-windata '(frame left 0.3 delete)
+  "*Arguments to set the window buffer display.
+See `windata-display-buffer' for setup the arguments.")
+
+(defvar perldoc-pragmas
+  '("attributes" "attrs" "autouse" "base" "bigint" "bignum" "bigrat"
+    "blib" "bytes" "charnames" "constant" "diagnostics" "encoding"
+    "fields" "filetest" "if" "integer" "less" "lib" "locale" "open"
+    "ops" "overload" "perlpod" "perlpodspec" "re" "sigtrap" "sort"
+    "strict" "subs" "threads" "threads::shared" "utf8" "vars" "vmsish"
+    "warnings" "warnings::register")
+  "For progma node in the tree.")
+
+(defvar perldoc-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tree-mode-map)
+    (define-key map "f" 'perldoc-find-module-ap)
+    (define-key map "m" 'perldoc-goto-module)
+    (define-key map "\C-o" 'perldoc-find-module-other-window)
+    map)
+  "*Local map use in perldoc tree.")
+
+(defface perldoc-directory-face
+  '((t :foreground "Blue1" :inherit widget-button-face))
+  "Face for non-module node"
+  :group 'perldoc)
+
+(defun perldoc-build-obarray (&optional re-cache)
+  "Build perldoc obarray from cache.
+With prefix arguments force cache update."
+  (interactive "P")
+  (if (and (null re-cache)
+           (file-exists-p perldoc-cache-el))
+      (load perldoc-cache-el)
+    (message "This may take some time, please wait...")
+    ;; full name for perl to locate file
+    (setq perldoc-cache-pl (expand-file-name perldoc-cache-pl)
+          perldoc-cache-el (expand-file-name perldoc-cache-el))
+    (unless (file-exists-p perldoc-cache-pl)
+      (perldoc-create-pl))
+    (set-process-sentinel
+     (start-process "hdwim" nil pde-perl-program
+                    perldoc-cache-pl perldoc-cache-el)
+     (lambda (proc event)
+       (if (zerop (process-exit-status proc))
+           (progn
+             (message "Create perldoc cache successfully!")
+             (load perldoc-cache-el)
+             (if (get-buffer perldoc-tree-buffer)
+                 (with-current-buffer perldoc-tree-buffer
+                   (tree-mode-reflesh))))
+         (error "Create perldoc cache failed! %s" event))))))
+
+(defun perldoc-recache-everyday (&optional days)
+  "If the cache file is expired DAYS, force caches update."
+  (unless (and (file-exists-p perldoc-cache-el)
+               (< (time-to-seconds
+                   (time-subtract
+                    (current-time)
+                    (nth 5 (file-attributes perldoc-cache-el))))
+                  (* 60 60 24 (or days 1))))
+    (perldoc-build-obarray t)
+    ;; indicate cache update
+    t))
+
+;;;###autoload 
+(defun perldoc (symbol)
+  "Display perldoc using woman.
+The SYMBOL can be a module name or a function. If the module and
+function is the same, add \".pod\" for the module name. For example,
+\"open.pod\" for the progma open and \"open\" for function open."
+  (interactive
+   (list
+    (intern (perldoc-read-module "Perldoc" t) perldoc-obarray)))
+  (let ((buf (format perldoc-buffer-format symbol))
+        (name (symbol-name symbol)))
+    (if (buffer-live-p (get-buffer buf))
+        (display-buffer buf)
+      (when symbol
+        (with-current-buffer (get-buffer-create buf)
+          (if (boundp symbol)           ; function
+              (progn
+                (call-process pde-perldoc-program nil t nil "-u" "-f" name)
+                (goto-char (point-min))
+                (insert (format "=head1 %s\n\n=over 4\n\n" name))
+                (goto-char (point-max))
+                (insert (format "\n=back\n\n=cut")))
+            (if (string-match "\\.pod$" name)
+                (setq name (replace-match "" nil nil name)))
+            (call-process pde-perldoc-program  nil t nil "-u" name))
+          (call-process-region (point-min) (point-max)
+                               perldoc-pod2man t t nil
+                               "-n" name)
+          (condition-case nil
+              (woman-process-buffer)
+            (error
+             ;; if error, show the document as text
+             (erase-buffer)
+             (apply 'call-process
+                    `(,pde-perldoc-program nil t nil ,@(if (boundp symbol) "-f") ,name))))
+          (display-buffer (current-buffer)))))))
+
+(defun perldoc-module-ap ()
+  "Perl module at point."
+  (let* ((chars perldoc-module-chars)
+         (mod (save-excursion
+                (buffer-substring
+                 (progn (skip-chars-backward chars) (point))
+                 (progn (skip-chars-forward chars) (point)))))
+         (def (intern-soft mod perldoc-obarray))
+         case-fold-search)
+    (and def
+         (not (boundp def))               ; not function
+         (not (string-match "^perl" mod)) ; not core module
+         mod)))
+
+(defsubst perldoc-locate-module (module)
+  "Find location of the module"
+  (locate-file 
+   (concat (replace-regexp-in-string "::" "/" module) ".pm")
+   pde-perl-inc))
+
+(defun perldoc-read-module (prompt &optional require-match init)
+  "Read perl module.
+When a module name at point, the default input is the module at point.
+Don't add \": \" in PROMPT."
+  (let ((default (perldoc-module-ap)))
+    (completing-read (if default
+                         (format "%s (default %s): " prompt default)
+                       (concat prompt ": "))
+                     perldoc-obarray
+                     (lambda (m)
+                       ;; not a function
+                       (not (boundp m)))
+                     require-match init nil default)))
+
+(defun perldoc-find-module (&optional module other-window)
+  "Find the file of perl module."
+  (interactive
+   (list (perldoc-read-module "Find perl module" t)
+         current-prefix-arg))
+  (funcall (if other-window 'find-file-other-window 'find-file)
+           (perldoc-locate-module module)))
+
+(defun perldoc-find-module-ap (&optional other-window)
+  "Find perl module at point."
+  (interactive "P")
+  (let ((def (perldoc-module-ap)))
+    (if def
+        (perldoc-find-module def other-window)
+      (message "No perl module at point"))))
+
+(defun perldoc-find-module-other-window ()
+  "Find perl module other window."
+  (interactive)
+  (perldoc-find-module-ap t))
+
+(defun perldoc-create-pl ()
+  (with-temp-buffer
+    (insert
+     "#! /usr/bin/perl -w\n"
+     "use File::Find;\n"
+     "use Data::Dumper qw(Dumper);\n"
+     "use Text::Wrap qw(wrap);\n"
+     "if ( @ARGV ) {\n"
+     "    my $file = shift;\n"
+     "    open(STDOUT, \">\", $file) or die \"Can't create $file: $!\";\n"
+     "}\n"
+     "my $fn = build_function();\n"
+     "print <<'EL';\n"
+     "(setq perldoc-obarray (make-vector 1519 nil))\n"
+     ";; Functions\n"
+     "(mapc (lambda (func)\n"
+     "         (set (intern func perldoc-obarray) t))\n"
+     "'(\n"
+     "EL\n"
+     "my $i = 1;\n"
+     "print wrap('', '', join(' ', map {qq(\"$_\")} sort keys %$fn )), \"))\\n\\n\";\n"
+     "\n"
+     "print <<'EL';\n"
+     ";; Modules\n"
+     "(mapc (lambda (mod)\n"
+     "         (intern mod perldoc-obarray))\n"
+     "'(\n"
+     "EL\n"
+     "my $mod = build_modules();\n"
+     "print wrap('', '', join(' ', map {qq(\"$_) . (exists $fn->{$_} ? \".pod\" : \"\") . '\"'} sort keys %$mod )), \"))\\n\";\n"
+     "\n"
+     "sub build_modules {\n"
+     "    my %mod;\n"
+     "    for my $dir ( @INC ) {\n"
+     "        next if $dir eq '.';\n"
+     "        next unless -d $dir;\n"
+     "        my $len = length($dir)+1;\n"
+     "        find( { wanted => sub {\n"
+     "                    if ( -f $_ && /\\.(pm|pod)$/i ) {\n"
+     "                        my $mod = substr($File::Find::name, $len);\n"
+     "                        $mod =~ s#^[pP]od/(?=a2p|perl)##;\n"
+     "                        $mod =~ s/.(pm|pod)$//;\n"
+     "                        $mod =~ s#/#::#g;\n"
+     "                        $mod{$mod}++;\n"
+     "                    }\n"
+     "                },\n"
+     "                follow => 1\n"
+     "            }, $dir);\n"
+     "    }\n"
+     "    return \\%mod;\n"
+     "}\n"
+     "\n"
+     "sub build_function {\n"
+     "    chomp(my $file = `perldoc -l perlfunc`);\n"
+     "    my %fn;\n"
+     "    open(FH, $file) or die \"Can't open file $file: $!\";\n"
+     "    while ( <FH> ) {\n"
+     "        last if /^=head2 Alphabetical/;\n"
+     "    }\n"
+     "    while ( <FH> ) {\n"
+     "        last if /^=over/;\n"
+     "    }\n"
+     "    my $stat = 1;\n"
+     "    while ( <FH> ) {\n"
+     "        if ( /^=item/ ) {\n"
+     "            if ( $stat ) {\n"
+     "                my $fn = (split /\\s+/, $_)[1];\n"
+     "                $fn =~ s#/.*$##;  #  y///, m// and so on\n"
+     "                $fn =~ s/\\(.*$//; # chomp(, chop(\n"
+     "                $fn{$fn}++;\n"
+     "            }\n"
+     "        } elsif ( /^=over/ ) {\n"
+     "            $stat = 0;\n"
+     "        } elsif ( /^=back/ ) {\n"
+     "            $stat = 1;\n"
+     "        }\n"
+     "    }\n"
+     "    map { $fn{'-'.$_}++ } qw/A B C M O R S T W X b c d e f g k l o p r s t u w x z/;\n"
+     "    return \\%fn;\n"
+     "}\n")
+    (write-region (point-min) (point-max) perldoc-cache-pl)))
+
+;;{{{  perldoc-tree
+(define-derived-mode perldoc-mode tree-mode "Perldoc"
+  "List perl module using tree-widget.
+
+\\{perldoc-mode-map}"
+  )
+
+;;;###autoload 
+(defun perldoc-tree ()
+  "Create pod tree."
+  (interactive)
+  (unless perldoc-obarray
+    (perldoc-build-obarray)
+    (or perldoc-obarray
+        (error "Something is wrong. Please check the cache file `perldoc-cache-el' and build cache manually.")))
+  (unless (get-buffer perldoc-tree-buffer)
+    (with-current-buffer (get-buffer-create perldoc-tree-buffer)
+      (widget-create (perldoc-tree-widget))
+      (perldoc-mode)
+      (widget-setup)))
+  (select-window (apply 'windata-display-buffer
+                        (get-buffer perldoc-tree-buffer)
+                        perldoc-tree-windata)))
+
+(defun perldoc-goto-module (module)
+  "Move to the node of the MODULE. Expand tree when need."
+  (interactive (list (completing-read "Go to module: " perldoc-obarray
+                                      nil t)))
+  (let ((sym (intern-soft module perldoc-obarray))
+        case-fold-search wid cat)
+    (when sym
+      (cond ((boundp sym)
+             (setq cat "Function"))
+            ((string-match "^perl[^:]" module)
+             (setq cat "Core document"))
+            (t (setq module (replace-regexp-in-string "\\.pod$" "" module))
+               (if (member module perldoc-pragmas)
+                   (setq cat "Pragram")
+                 (setq cat "Modules")
+                 (let (path str)
+                   (dolist (name (split-string module "::"))
+                     (push (setq str (concat (if str (concat str "::")) name)) path))
+                   (setq module (nreverse path))))))
+      (setq wid (tree-mode-find-node (tree-mode-tree-ap)
+                                     (if (listp module)
+                                         (cons cat module)
+                                       (list cat module))))
+      (goto-char (widget-get (car wid) :from)))))
+
+(defun perldoc-tree-widget ()
+  `(tree-widget
+    :node (push-button
+           :tag "Perldoc"
+           :format "%[%t%]\n")
+    :open t
+    ,@(mapcar
+       (lambda (cat)
+         `(tree-widget
+           :node (push-button
+                  :tag ,(car cat)
+                  :format "%[%t%]\n")
+           :dynargs ,(cdr cat)))
+       '(("Function" . perldoc-function-expand)
+         ("Core document" . perldoc-coredoc-expand)
+         ("Pragram" . perldoc-pragram-expand)
+         ("Modules" . perldoc-modules-expand)))))
+
+(defun perldoc-function-expand (tree)
+  (or (widget-get tree :args)
+      (mapcar (lambda (f)
+                (perldoc-item f t))
+              (sort (all-completions "" perldoc-obarray
+                                     (lambda (sym) (and sym (boundp sym))))
+                    'string<))))
+
+(defun perldoc-coredoc-expand (tree)
+  (or (widget-get tree :args)
+      (mapcar 'perldoc-item 
+              (sort
+               (let (completion-ignore-case)
+                 (all-completions "perl" perldoc-obarray))
+               'string<))))
+
+(defun perldoc-pragram-expand (tree)
+  (or (widget-get tree :args)
+      (mapcar 'perldoc-item
+              perldoc-pragmas)))
+
+(defun perldoc-modules-expand (tree)
+  (or (widget-get tree :args)
+      (let ((hash (make-hash-table :test 'equal))
+            case-fold-search
+            module)
+        (mapatoms
+         (lambda (sym)
+           (and (not (boundp sym))
+                (puthash (car (split-string (symbol-name sym) "::")) t hash)))
+         perldoc-obarray)
+        (maphash
+         (lambda (key val)
+           (unless (or (string-match "^perl" key)
+                       (string-match "\\.pod$" key)
+                       (member key perldoc-pragmas))
+             (push key module)))
+         hash)
+        (mapcar 'perldoc-module-item
+                (sort module 'string<)))))
+
+(defun perldoc-has-submodp (module)
+  "Test whether the MODULE has submodule."
+  (not (null (try-completion (concat module "::") perldoc-obarray))))
+
+(defun perldoc-sub-module-expand (tree)
+  (or (widget-get tree :args)
+      (let ((name (widget-get (tree-widget-node tree) :tag))
+            module)
+        (mapc (lambda (mod)
+                (if (string-match (concat (regexp-quote name) "::[^:]+")
+                                  mod)
+                    (add-to-list 'module (match-string 0 mod))))
+              (all-completions name perldoc-obarray))
+        (mapcar
+         'perldoc-module-item
+         (sort module
+               (lambda (m1 m2)
+                 (let ((p1 (perldoc-has-submodp m1))
+                       (p2 (perldoc-has-submodp m2)))
+                   (if (eq p1 p2)
+                       (string< m1 m2)
+                     p1))))))))
+
+(defun perldoc-module-item (mod)
+  (if (perldoc-has-submodp mod)
+      `(tree-widget
+        :node (push-button
+               :tag ,mod
+               :format "%[%t%]\n"
+               ,@(if (intern-soft mod perldoc-obarray)
+                    (list :notify 'perldoc-select)
+                   (list :button-face 'perldoc-directory-face)))
+        :dynargs perldoc-sub-module-expand)
+    `(push-button
+      :tag ,mod
+      :format "%[%t%]\n"
+      :notify perldoc-select)))
+
+(defun perldoc-item (name &optional funcp)
+  `(push-button
+    :tag ,name
+    :format "%[%t%]\n"
+    :funtion ,funcp
+    :notify perldoc-select))
+
+(defun perldoc-select (node &rest ignore)
+  "Show the manpage of the module in the NODE."
+  (let ((name (widget-get node :tag))
+        (funcp (widget-get node :funtion))
+        sym)
+    (setq sym (intern-soft name perldoc-obarray))
+    (if (not sym)
+        (message "No perldoc found for %s" name)
+      (and (not funcp) (boundp sym)
+           (setq sym (intern-soft (concat name ".pod") perldoc-obarray)))
+      (perldoc sym))))
+;;}}}
+ 
+(provide 'perldoc)
+;;; perldoc.el ends here

@@ -1,0 +1,23 @@
+---
+name: PDE
+version: v0.1.0
+author: []
+abstract: Perl Development Environment in emacs
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+provides:
+  PDE:
+    file: lib/PDE.pm
+    version: !!perl/hash:version
+      qv: 1
+      version:
+        - 0
+        - 1
+        - 0
+  PDE::Util:
+    file: lib/PDE/Util.pm
+generated_by: Module::Build version 0.2805
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
