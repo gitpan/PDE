@@ -124,7 +124,7 @@ to replace with the file name.")
 
 
 ;;; Internal variables
-(defvar template-expand-function 'template-skeleton-expand
+(defvar template-expand-function 'template-tempo-expand
   "Functions to expand parsed template.")
 (put 'template-expand-function 'safe-local-variable 'functionp)
 
@@ -141,8 +141,20 @@ to replace with the file name.")
 The template can have a file variable line, which can override default
 global variable `template-parens' and `template-expand-function'.
 The program fragment is surrounded by `template-parens', the escape
-char `\\' is used for escape the open parenthesis. The program fragment
-see the `template-expand'.
+char `\\' is used for escape the open parenthesis.
+The text in the parentheseses are `read' into a list. For example:
+  (template-compile-string
+   \";; -*- template-parens: (\\\"{\\\" . \\\"}\\\") -*- 
+   (defun {p} ({p})
+    \\\"{(read-from-minibuffer \\\"Document: \\\")}\\\"
+    )
+   \")
+
+  is compile to a list like this:
+  (\" (defun \" (p) \" (\" (p) \")
+    \\\"\" ((read-from-minibuffer \"Document: \")) \"\\\"
+    )
+   \")
 "
   (save-excursion
     (let ((vars (hack-local-variables-prop-line))
@@ -190,9 +202,7 @@ see the `template-expand'.
                 (goto-char (point-min))
                 (while (not (eobp))
                   (push (read (current-buffer)) forms))))
-            (if (= (length forms) 1)
-                (push (car forms) templates)
-              (push (nreverse forms) templates)))))
+            (push (nreverse forms) templates))))
       (push (buffer-substring-no-properties (point) (point-max)) templates)
       (nreverse templates))))
 
@@ -208,72 +218,58 @@ see the `template-expand'.
   (replace-regexp-in-string "_" "-" (downcase (symbol-name name))))
 
 (defun template-expansion (elem)
-  "Lookup name in `template-default-alist'."
-  (cond ((stringp elem) elem)
-        ((symbolp elem)
-         (or (cadr (assoc (template-normal-name elem)
-                          template-default-alist))
-             (and (boundp elem) (symbol-value elem))
-             `(or (cadr (assoc (template-normal-name ',elem)
-                               template-default-alist))
-                  (let ((str (read-from-minibuffer (format "Replace '%S' with: " ',elem))))
-                    (add-to-list 'template-default-alist
-                                 (list (template-normal-name ',elem) str))
-                    str))))
-        ;; ignore integer
-        ((integerp elem) "")
-        (t elem)))
+  "Lookup name in `template-default-alist'.
+If the elem is a list with length more"
+  (if (stringp elem)
+      (list elem)
+    (if (= (length elem) 1)
+        (progn
+          (setq elem (car elem))
+          (list
+           (cond ((symbolp elem)
+                  (or (cadr (assoc (template-normal-name elem)
+                                   template-default-alist))
+                      (and (boundp elem) (symbol-value elem))
+                      `(or (cadr (assoc (template-normal-name ',elem)
+                                        template-default-alist))
+                           (let ((str (read-from-minibuffer (format "Replace '%S' with: " ',elem))))
+                             (add-to-list 'template-default-alist
+                                          (list (template-normal-name ',elem) str))
+                             str))))
+                 ;; ignore integer
+                 ((integerp elem) "")
+                 (t elem))))
+      elem)))
+
+(defmacro define-template-expander (name alist &rest body)
+  "Define a new type of `template-expand-function'.
+NAME is used to create a function template-<NAME>-expand.
+ALIST can be a symbol or a form to return a list of symbol table add
+to template-default-alist.
+BODY is the code to expand and insert the template. the value of
+variable TEMPLATE is the translated template. The element of parsed
+template is translated by `template-expansion'"
+  (declare (debug t) (indent 2))
+  `(defun ,(intern (format "template-%s-expand" name)) (template)
+     ,(format "Expand template by %s" name)
+     (let ((template-default-alist
+            (append ,alist template-default-alist))
+           ;; save global variable 
+           (template-expand-function
+            ',(intern (format "template-%s-expand" name))))
+       (if (stringp template)
+           (setq template (template-compile-string template)))
+       (setq template (apply 'append (mapcar 'template-expansion template)))
+       ,@body)))
 
 ;;;###autoload
-(defun template-skeleton-expand (template)
-  "Expand parsed templates with `skeleton-insert'.
-The parsed templates can be:
- - string: directly insert to buffer
- - name in `template-default-alist'
- - name in `template-skeleton-alist'
- - any valid skeleton element
-"
-  (require 'skeleton)
-  (let ((template-default-alist
-         (append template-skeleton-alist
-                 template-default-alist))
-        ;; save global variable 
-        (template-expand-function 'template-skeleton-expand))
-    (if (stringp template)
-        (setq template (template-compile-string template)))
-    (skeleton-insert
-     (cons nil
-           (apply 'append
-                  (mapcar (lambda (elem)
-                            (if (listp elem)
-                                (list elem)
-                              (list (template-expansion elem))))
-                          template))))))
+(define-template-expander skeleton template-skeleton-alist
+  (skeleton-insert (cons nil template)))
 
+(autoload 'tempo-insert-template "tempo")
 ;;;###autoload
-(defun template-tempo-expand (template)
-  "Expand parsed templates with `tempo-insert-template'.
-The parsed templates can be:
- - string: directly insert to buffer
- - name in `template-default-alist'
- - name in `template-tempo-alist'
- - any valid tempo element"
-  (require 'tempo)
-  (let ((template-default-alist
-         (append template-tempo-alist
-                 template-default-alist))
-        ;; save global variable
-        (template-expand-function 'template-tempo-expand)
-        tempo-template)           ; avoid name collide with 'template'
-    (if (stringp template)
-        (setq template (template-compile-string template)))
-    (setq tempo-template
-          (apply 'append
-                 (mapcar (lambda (elem)
-                           (if (listp elem)
-                               (list elem)
-                             (list (template-expansion elem))))
-                         template)))
+(define-template-expander tempo template-tempo-alist
+  (let ((tempo-template template))
     (tempo-insert-template 'tempo-template nil)))
 
 ;;; Exported commands
@@ -330,6 +326,12 @@ Use `template-expand-function' to expand the parsed template."
               (setq template (template-compile-string template)))
           (funcall template-expand-function template))
       (error (message "%s: %s" (car err) (cdr err))))))
+
+;;; Commands for write template to string
+(defun template-kill-ring-save (beg end)
+  "Stringfy text in region, `yank' to see it."
+  (interactive "r")
+  (kill-new (format "%S" (buffer-substring-no-properties beg end)) nil))
 
 ;;; Provide addtional command in template.el
 (defun template-simple-update-header ()

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
-use version; our $VERSION = qv("0.01");
+use version; our $VERSION = qv("0.02");
 
 1;
 
@@ -83,6 +83,20 @@ please drop me a note at I<wenbinye@gmail.com>
 
 =head1 SEE ALSO
 
+More document for PDE:
 doc/pde.info, doc/QuickStart.html
+
+
+More emacs lisp libraries or Perl Modules:
+
+L<Sepia>  - Simple Emacs-Perl Interface
+
+perlnow.el  - Emacs extensions to speed development of perl code.
+
+L<Devel::PerlySense> - IntelliSense for Perl
+
+L<PPI> - Parse, Analyze and Manipulate Perl (without perl)
+
+L<http://www.emacswiki.org/cgi-bin/wiki/PerlLanguage> - Discussion in EmacsWiki
 
 =cut

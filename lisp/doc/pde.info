@@ -1,5 +1,5 @@
-This is pde.info, produced by makeinfo version 4.8 from
-/home/ywb/proj/darcs/pde/lisp/doc/pde.texi.
+This is lisp/doc/pde.info, produced by makeinfo version 4.8 from
+lisp/doc/pde.texi.
 
 INFO-DIR-SECTION Emacs
 START-INFO-DIR-ENTRY
@@ -44,15 +44,15 @@ This is manual for PDE version 0.01
 * pde-project::                 Projects in perl
 * pde-util::                    Misc commands
 * template-simple::             New file with template
+* compile-dwim::                Smart compile commands
 * tabbar-x::                    Tabbar for particular buffers
 * help-dwim::                   Find documents using help-dwim
-* compile-dwim::                Smart compile commands
 * perldoc::                     Run perldoc using woman
 * perlapi::                     Find document in perlapi
 * windata::                     Window configuration to list
+* tree-mode::                   More commands on tree-widget
 * imenu-tree::                  Tree view for imenu
 * tags-tree::                   Tree view of TAGS
-* tree-mode::                   More commands on tree-widget
 * perltidy::                    Call perltidy
 * perldb-ui::                   Perl Debugger
 * inf-perl::                    Interactive perl shell
@@ -403,7 +403,7 @@ File: pde.info,  Node: pde-util,  Next: template-simple,  Prev: pde-project,  Up
      parent directory, set this variable to let perl found the module.
 
 
-File: pde.info,  Node: template-simple,  Next: tabbar-x,  Prev: pde-util,  Up: Top
+File: pde.info,  Node: template-simple,  Next: compile-dwim,  Prev: pde-util,  Up: Top
 
 8 New file with template
 ************************
@@ -423,7 +423,18 @@ predefined value in `template-default-alist', or can be translate by
  -- User Option: template-expand-function
      Functions to expand parsed template. There are two candicate
      functions available in template-simple:
-     `template-skeleton-expand' and `template-tempo-expand'.
+     `template-skeleton-expand' and `template-tempo-expand'. Default
+     function is `template-tempo-expand', because I think tempo
+     provide more fetures and flexibility than skeleton.
+
+ -- Function: define-template-expander name alist &rest body
+     Define a new type of `template-expand-function'. NAME is used to
+     create a function template-<NAME>-expand. ALIST can be a symbol
+     or a form to return a list of symbol table add to
+     `template-default-alist'.  BODY is the code to expand and insert
+     the template. the value of variable TEMPLATE is the translated
+     template. The element of parsed template is translated by
+     `template-expansion'
 
  -- Function: template-simple-expand-template file
      Expand template in file.  Parse the template to parsed templates
@@ -452,8 +463,12 @@ certain template, you can set `template-parens' and
        {p}
        )")
 
-   This will expand by template-tempo-expand but not default expand
-function template-skeleton-expand.
+   This will expand by `template-tempo-expand' but not default expand
+function. Luckily in most case, template of tempo and skeleton can be
+the same, so you don't have to set `template-expand-function'. If
+your template uses element that only exists in tempo or skeleton,
+you'd better set it in template to make sure the
+`template-simple-expand' select the correct one.
 
    The major purpose of template-simple is used for fill empty file
 using predefined template.
@@ -465,8 +480,10 @@ using predefined template.
  -- Function: template-derive-template
      Find proper template for current file. The template file is a
      file with name "TEMPLATE" and the same extension of current file
-     under `template-directory'. If the file didn't have extension,
-     the template file's extension is current file name, for example,
+     under `template-directory'. You can add a suffix ".tpl" to the
+     template file name too, just for compatible with templates
+     provide by template.el. If the file didn't have extension, the
+     template file's extension is current file name, for example,
      "TEMPLATE.Makefile" is template file for "Makefile".
 
  -- User Option: template-default-alist
@@ -523,7 +540,7 @@ template-simple also provide this feature.
     */
 
 
-File: pde.info,  Node: tabbar-x,  Next: help-dwim,  Prev: template-simple,  Up: Top
+File: pde.info,  Node: tabbar-x,  Next: help-dwim,  Prev: compile-dwim,  Up: Top
 
 9 Tabbar for particular buffers
 *******************************
@@ -537,47 +554,9 @@ exists for this purpose.
      Register the buffer to the one group.
 
 
-File: pde.info,  Node: help-dwim,  Next: compile-dwim,  Prev: tabbar-x,  Up: Top
+File: pde.info,  Node: compile-dwim,  Next: tabbar-x,  Prev: template-simple,  Up: Top
 
-10 Find documents using help-dwim
-*********************************
-
-A big obstacle for novice to used to emacs is that there are so many
-keys to remember. I like dwim commands. `help-dwim.el' provide a
-single command as interface for several kinds of document commands,
-such as `describe-function', `describe-variable', `woman'. And you
-can add more if you follow the rules.
-
-   A type of help-dwim commands should provide:
-   * a functions or a character sets to find which symbol under point
-
-   * an obarray to search whether the symbol belong to this type
-
-   * an optional predicate function to filter unwanted symbol
-
-   * a handler to show the document of the symbol
-
- -- Function: help-dwim-register type activate &optional body
-     Register a new type of help command. An new type has a form
-     (TYPE .  [FINDER OBARRAY PREDICATE HANDLER]). If ACTIVATE is
-     non-nil, the type will add to `help-dwim-active-type', and BODY
-     will eval intermediately. BODY is the code to eval when the type
-     is activated.  If the type is register without activated, the
-     BODY will add to `help-dwim-autoloads'. When you use
-     `help-dwim-active-type' or `help-dwim-customize-type' add the
-     type, the code will also eval then.
-
- -- Command: help-dwim-customize-type
-     Customize which type of help command should activate.
-
- -- Function: help-dwim-active-type type &optional append
-     Active a type for current buffer *ONLY*.  The TYPE will gain a
-     highest prority unless APPEND is non-nil.
-
-
-File: pde.info,  Node: compile-dwim,  Next: perldoc,  Prev: help-dwim,  Up: Top
-
-11 Smart compile commands
+10 Smart compile commands
 *************************
 
 cperl-mode recommend using mode-compile, but I don't like
@@ -620,7 +599,45 @@ I like dwim).
      mode-hook for certain files.
 
 
-File: pde.info,  Node: perldoc,  Next: perlapi,  Prev: compile-dwim,  Up: Top
+File: pde.info,  Node: help-dwim,  Next: perldoc,  Prev: tabbar-x,  Up: Top
+
+11 Find documents using help-dwim
+*********************************
+
+A big obstacle for novice to used to emacs is that there are so many
+keys to remember. I like dwim commands. `help-dwim.el' provide a
+single command as interface for several kinds of document commands,
+such as `describe-function', `describe-variable', `woman'. And you
+can add more if you follow the rules.
+
+   A type of help-dwim commands should provide:
+   * a functions or a character sets to find which symbol under point
+
+   * an obarray to search whether the symbol belong to this type
+
+   * an optional predicate function to filter unwanted symbol
+
+   * a handler to show the document of the symbol
+
+ -- Function: help-dwim-register type activate &optional body
+     Register a new type of help command. An new type has a form
+     (TYPE .  [FINDER OBARRAY PREDICATE HANDLER]). If ACTIVATE is
+     non-nil, the type will add to `help-dwim-active-type', and BODY
+     will eval intermediately. BODY is the code to eval when the type
+     is activated.  If the type is register without activated, the
+     BODY will add to `help-dwim-autoloads'. When you use
+     `help-dwim-active-type' or `help-dwim-customize-type' add the
+     type, the code will also eval then.
+
+ -- Command: help-dwim-customize-type
+     Customize which type of help command should activate.
+
+ -- Function: help-dwim-active-type type &optional append
+     Active a type for current buffer *ONLY*.  The TYPE will gain a
+     highest prority unless APPEND is non-nil.
+
+
+File: pde.info,  Node: perldoc,  Next: perlapi,  Prev: help-dwim,  Up: Top
 
 12 Run perldoc using woman
 **************************
@@ -666,7 +683,7 @@ This is orignal a demo for help-dwim. Useful if you are writing XS.
      the document.
 
 
-File: pde.info,  Node: windata,  Next: imenu-tree,  Prev: perlapi,  Up: Top
+File: pde.info,  Node: windata,  Next: tree-mode,  Prev: perlapi,  Up: Top
 
 14 Window configuration to list
 *******************************
@@ -794,91 +811,9 @@ FRAME-P is non-nil except 'window, the original window still has the
 same configuration.
 
 
-File: pde.info,  Node: imenu-tree,  Next: tags-tree,  Prev: windata,  Up: Top
+File: pde.info,  Node: tree-mode,  Next: imenu-tree,  Prev: windata,  Up: Top
 
-15 Tree view for imenu
-**********************
-
-imenu provide an excellent code navigating method. `imenu-tree.el'
-make the tags visualized using tree-widget.
-
- -- User Option: imenu-tree-auto-update
-     If Non-nil, the imenu-tree will update automaticly. Also, if the
-     imenu-tree is not visible in the window, it will automaticly
-     scroll to make it visible.
-
- -- User Option: imenu-tree-update-interval
-     Seconds between update imenu tree.
-
- -- Command: imenu-tree-toggle-auto-update
-     Toggle imenu-tree auto update.  With prefix argument, turn on
-     auto update.
-
- -- User Option: imenu-tree-create-buffer-function
-     A function to group imenu-tree to various buffer. Default is nil,
-     means using only one buffer.
-
- -- User Option: imenu-tree-name
-     The name for the root node. Default is the "mode-name:
-     buffer-name".
-
- -- User Option: imenu-tree-windata
-     Arguments to set the window buffer display.  See
-     `windata-display-buffer' for setup the arguments.
-
-
-File: pde.info,  Node: tags-tree,  Next: tree-mode,  Prev: imenu-tree,  Up: Top
-
-16 Tree view of TAGS
-********************
-
-`tags-tree.el' read TAGS file and display them using tree-widget.
-
- -- User Option: tags-tree-create-buffer-function
-     A function to group tags-tree to various buffer. Default is nil,
-     means using only one buffer.
-
- -- User Option: tags-tree-group-file-function
-     A function to group files.  Accept one parameter, a file list in
-     TAGS file. Return a tree like:
-        ("Root name"
-         ("Group1"
-          ("file1" . "full name of file1"))
-         ("Group2"
-          ("subgroup"
-           ("file2" . "full name of file2"))))
-
-     Default is tags-tree-group-file-by-name, Which group all files
-     according to file path.
-
- -- User Option: tags-tree-group-tags-function
-     A function to group tags.  Accept one parameter, a list of tags
-     info, return a tree like:
-       ((("group1")
-         (("subgroup1")
-          ("tag1" . tag-info))
-         ("tag2" . tag-info))
-        (("group2")
-         ("tag3" . tag-info)))
-
-     Default is tags-tree-group-tags which group by
-     `tags-tree-group-tags-expression' which much like
-     `imenu-generic-expression'.
-
-   The TAGS file can be update by extern file when in tags-tree.
-`G'
-     `tags-tree-update-file' - update TAGS of current file under
-     point or file of tag under point.
-
-
- -- User Option: tags-tree-tags-update-program
-     Program to update TAGS for a file. Default is `myetags' which is
-     written using perl.
-
-
-File: pde.info,  Node: tree-mode,  Next: perltidy,  Prev: tags-tree,  Up: Top
-
-17 More commands on tree-widget
+15 More commands on tree-widget
 *******************************
 
 `tree-mode.el' provide more commands to tree-widget.
@@ -929,7 +864,89 @@ push-button by put an addition attribute :button-icon in tree-widget
 node.
 
 
-File: pde.info,  Node: perltidy,  Next: perldb-ui,  Prev: tree-mode,  Up: Top
+File: pde.info,  Node: imenu-tree,  Next: tags-tree,  Prev: tree-mode,  Up: Top
+
+16 Tree view for imenu
+**********************
+
+imenu provide an excellent code navigating method. `imenu-tree.el'
+make the tags visualized using tree-widget.
+
+ -- User Option: imenu-tree-auto-update
+     If Non-nil, the imenu-tree will update automaticly. Also, if the
+     imenu-tree is not visible in the window, it will automaticly
+     scroll to make it visible.
+
+ -- User Option: imenu-tree-update-interval
+     Seconds between update imenu tree.
+
+ -- Command: imenu-tree-toggle-auto-update
+     Toggle imenu-tree auto update.  With prefix argument, turn on
+     auto update.
+
+ -- User Option: imenu-tree-create-buffer-function
+     A function to group imenu-tree to various buffer. Default is nil,
+     means using only one buffer.
+
+ -- User Option: imenu-tree-name
+     The name for the root node. Default is the "mode-name:
+     buffer-name".
+
+ -- User Option: imenu-tree-windata
+     Arguments to set the window buffer display.  See
+     `windata-display-buffer' for setup the arguments.
+
+
+File: pde.info,  Node: tags-tree,  Next: perltidy,  Prev: imenu-tree,  Up: Top
+
+17 Tree view of TAGS
+********************
+
+`tags-tree.el' read TAGS file and display them using tree-widget.
+
+ -- User Option: tags-tree-create-buffer-function
+     A function to group tags-tree to various buffer. Default is nil,
+     means using only one buffer.
+
+ -- User Option: tags-tree-group-file-function
+     A function to group files.  Accept one parameter, a file list in
+     TAGS file. Return a tree like:
+        ("Root name"
+         ("Group1"
+          ("file1" . "full name of file1"))
+         ("Group2"
+          ("subgroup"
+           ("file2" . "full name of file2"))))
+
+     Default is tags-tree-group-file-by-name, Which group all files
+     according to file path.
+
+ -- User Option: tags-tree-group-tags-function
+     A function to group tags.  Accept one parameter, a list of tags
+     info, return a tree like:
+       ((("group1")
+         (("subgroup1")
+          ("tag1" . tag-info))
+         ("tag2" . tag-info))
+        (("group2")
+         ("tag3" . tag-info)))
+
+     Default is tags-tree-group-tags which group by
+     `tags-tree-group-tags-expression' which much like
+     `imenu-generic-expression'.
+
+   The TAGS file can be update by extern file when in tags-tree.
+`G'
+     `tags-tree-update-file' - update TAGS of current file under
+     point or file of tag under point.
+
+
+ -- User Option: tags-tree-tags-update-program
+     Program to update TAGS for a file. Default is `myetags' which is
+     written using perl.
+
+
+File: pde.info,  Node: perltidy,  Next: perldb-ui,  Prev: tags-tree,  Up: Top
 
 18 Calling perltidy
 *******************
@@ -1062,6 +1079,7 @@ Function Index
  [index ]
 * Menu:
 
+* define-template-expander:              template-simple.   (line  26)
 * flymake-mode:                          pde.               (line 160)
 * gud-break:                             perldb-ui.         (line  57)
 * gud-cont:                              perldb-ui.         (line  54)
@@ -1115,10 +1133,10 @@ Function Index
 * tabbar-x-register:                     tabbar-x.          (line  12)
 * tags-tree-update-file:                 tags-tree.         (line  41)
 * template-compile:                      template-simple.   (line  10)
-* template-derive-template:              template-simple.   (line  61)
-* template-simple-expand:                template-simple.   (line  29)
-* template-simple-expand-template:       template-simple.   (line  24)
-* template-simple-update-header:         template-simple.   (line 108)
+* template-derive-template:              template-simple.   (line  76)
+* template-simple-expand:                template-simple.   (line  40)
+* template-simple-expand-template:       template-simple.   (line  35)
+* template-simple-update-header:         template-simple.   (line 125)
 * tree-mode-collapse-other-except:       tree-mode.         (line  41)
 * tree-mode-delete-tree:                 tree-mode.         (line  45)
 * tree-mode-expand-level:                tree-mode.         (line  31)
@@ -1175,8 +1193,8 @@ Variable Index
 * tags-tree-group-file-function:         tags-tree.          (line 13)
 * tags-tree-group-tags-function:         tags-tree.          (line 26)
 * tags-tree-tags-update-program:         tags-tree.          (line 46)
-* template-default-alist:                template-simple.    (line 68)
-* template-directory-list:               template-simple.    (line 57)
+* template-default-alist:                template-simple.    (line 85)
+* template-directory-list:               template-simple.    (line 72)
 * template-expand-function:              template-simple.    (line 19)
 * windata-data-function:                 windata.            (line 22)
 * windata-data-restore-function:         windata.            (line 27)
@@ -1245,29 +1263,29 @@ Keybinding Index
 
 
 Tag Table:
-Node: Top724
-Node: Introduction2478
-Node: Installation3135
-Node: pde-load4088
-Node: pde5986
-Node: pde-vars10839
-Node: pde-project11159
-Node: pde-util11877
-Node: template-simple12508
-Node: tabbar-x16634
-Node: help-dwim17111
-Node: compile-dwim18709
-Node: perldoc20478
-Node: perlapi21770
-Node: windata22170
-Node: imenu-tree28093
-Node: tags-tree29172
-Node: tree-mode30707
-Node: perltidy32018
-Node: perldb-ui32218
-Node: inf-perl34526
-Node: Function Index35633
-Node: Variable Index41031
-Node: Keybinding Index43597
+Node: Top708
+Node: Introduction2462
+Node: Installation3119
+Node: pde-load4072
+Node: pde5970
+Node: pde-vars10823
+Node: pde-project11143
+Node: pde-util11861
+Node: template-simple12492
+Node: tabbar-x17629
+Node: compile-dwim18103
+Node: help-dwim19879
+Node: perldoc21472
+Node: perlapi22761
+Node: windata23161
+Node: tree-mode29083
+Node: imenu-tree30394
+Node: tags-tree31475
+Node: perltidy33009
+Node: perldb-ui33209
+Node: inf-perl35517
+Node: Function Index36624
+Node: Variable Index42093
+Node: Keybinding Index44659
 
 End Tag Table

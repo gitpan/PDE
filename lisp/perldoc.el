@@ -112,7 +112,7 @@ With prefix arguments force cache update."
     (unless (file-exists-p perldoc-cache-pl)
       (perldoc-create-pl))
     (set-process-sentinel
-     (start-process "hdwim" nil pde-perl-program
+     (start-process "perldoc-build" nil pde-perl-program
                     perldoc-cache-pl perldoc-cache-el)
      (lambda (proc event)
        (if (zerop (process-exit-status proc))
@@ -135,6 +135,15 @@ With prefix arguments force cache update."
     (perldoc-build-obarray t)
     ;; indicate cache update
     t))
+
+(defun perldoc-init (&optional check)
+  (unless perldoc-obarray
+    (if check
+        (if (get-process "perldoc-build")
+            (error "The cache is building, please wait")
+          (or perldoc-obarray
+              (error "Something is wrong. Please check the cache file `perldoc-cache-el' and build cache manually.")))
+      (perldoc-build-obarray))))
 
 ;;;###autoload 
 (defun perldoc (symbol)
@@ -175,6 +184,7 @@ function is the same, add \".pod\" for the module name. For example,
 
 (defun perldoc-module-ap ()
   "Perl module at point."
+  (perldoc-init t)
   (let* ((chars perldoc-module-chars)
          (mod (save-excursion
                 (buffer-substring
@@ -321,15 +331,13 @@ Don't add \": \" in PROMPT."
 (defun perldoc-tree ()
   "Create pod tree."
   (interactive)
-  (unless perldoc-obarray
-    (perldoc-build-obarray)
-    (or perldoc-obarray
-        (error "Something is wrong. Please check the cache file `perldoc-cache-el' and build cache manually.")))
+  (perldoc-init t)
   (unless (get-buffer perldoc-tree-buffer)
     (with-current-buffer (get-buffer-create perldoc-tree-buffer)
       (widget-create (perldoc-tree-widget))
       (perldoc-mode)
-      (widget-setup)))
+      (widget-setup)
+      (goto-char (point-min))))
   (select-window (apply 'windata-display-buffer
                         (get-buffer perldoc-tree-buffer)
                         perldoc-tree-windata)))
@@ -347,7 +355,7 @@ Don't add \": \" in PROMPT."
              (setq cat "Core document"))
             (t (setq module (replace-regexp-in-string "\\.pod$" "" module))
                (if (member module perldoc-pragmas)
-                   (setq cat "Pragram")
+                   (setq cat "Pragam")
                  (setq cat "Modules")
                  (let (path str)
                    (dolist (name (split-string module "::"))
@@ -374,7 +382,7 @@ Don't add \": \" in PROMPT."
            :dynargs ,(cdr cat)))
        '(("Function" . perldoc-function-expand)
          ("Core document" . perldoc-coredoc-expand)
-         ("Pragram" . perldoc-pragram-expand)
+         ("Pragams" . perldoc-pragam-expand)
          ("Modules" . perldoc-modules-expand)))))
 
 (defun perldoc-function-expand (tree)
@@ -393,7 +401,7 @@ Don't add \": \" in PROMPT."
                  (all-completions "perl" perldoc-obarray))
                'string<))))
 
-(defun perldoc-pragram-expand (tree)
+(defun perldoc-pragam-expand (tree)
   (or (widget-get tree :args)
       (mapcar 'perldoc-item
               perldoc-pragmas)))
@@ -475,6 +483,7 @@ Don't add \": \" in PROMPT."
            (setq sym (intern-soft (concat name ".pod") perldoc-obarray)))
       (perldoc sym))))
 ;;}}}
- 
+
+(perldoc-init)
 (provide 'perldoc)
 ;;; perldoc.el ends here

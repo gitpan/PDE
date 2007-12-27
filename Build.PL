@@ -47,11 +47,70 @@ sub ACTION_install {
                                 $self->{args}{uninst} || 0 );
 }
 
+sub ACTION_info {
+    my $self = shift;
+    my $texi = "lisp/doc/pde.texi";
+    my $info = "lisp/doc/pde.info";
+    if ( !-e $info || stat($texi)->mtime > stat($info)->mtime ) {
+        print qq/makeinfo --fill-column=70 $texi\n/;
+        system("makeinfo", "--fill-column=70", "-o", $info, $texi);
+    }
+    else {
+        print "$info is already updated to date\n";
+    }
+    return;
+}
+
+sub ACTION_html {
+    my $self = shift;
+    my $html = 'lisp/doc/pde.html';
+    my $htmldir = 'lisp/doc/pde'; 
+    my $texi = "lisp/doc/pde.texi";
+    if ( !-e $html || stat($texi)->mtime > stat($html)->mtime ) {
+        print qq/makeinfo --no-split --html -o $html $texi\n/;
+        system("makeinfo", "--no-split", "--html", "-o", $html, $texi);
+        print qq/makeinfo --html -o $htmldir $texi\n/;
+        system("makeinfo", "--html", "-o", $htmldir, $texi);
+    }
+    return;
+}
+
+sub ACTION_muse {
+    my $self = shift;
+    my @muse = ('misc/QuickStart.muse', 'misc/QuickStartEn.muse');
+    my @otherlib = (
+        '/home/ywb/.emacs.d/site-lisp/mycontrib/dot-emacs-helper.el',
+        "/home/ywb/.emacs.d/config/muse-init.el",
+        "/home/ywb/proj/darcs/pde/misc/muse-myhtml.el"
+    );
+    foreach my $muse ( @muse ) {
+        (my $html = 'lisp/doc/'.basename($muse)) =~ s/\.muse/.html/;
+        if ( !-e $html || stat($muse)->mtime > stat($muse)->mtime ) {
+            system("emacs", "-q", "-batch",
+                   (map { +"-l" => $_ } @otherlib),
+                   "-f", "muse-project-batch-publish", "PDE");
+        }
+        else {
+            print "$html is updated to date.\n";
+        }
+    }
+    return;
+}
+
+sub ACTION_dist {
+    my $self = shift;
+    $self->depends_on('info');
+    $self->depends_on('html');
+    $self->depends_on('muse');
+    return $self->SUPER::ACTION_dist(@_);
+}
+
 EOF
 
 my $build = $class->new(
     module_name => 'PDE',
     license => 'perl',
+    add_to_cleanup => [glob('lisp/*.elc')],
 );
 $build->add_build_element('elc');
 $build->create_build_script;

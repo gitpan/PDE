@@ -80,7 +80,7 @@
           (setq package (substring package (match-end 0))))
       (replace-regexp-in-string
        "/" "::"
-       (replace-regexp-in-string "\\.pm" "" package)))))
+       (replace-regexp-in-string "\\.\\(pm\\|pod\\)" "" package)))))
 
 (provide 'pde-project)
 ;;; pde-project.el ends here

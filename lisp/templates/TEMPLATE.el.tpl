@@ -1,3 +1,4 @@
+;; -*- mode: emacs-lisp; template-expand-function: template-skeleton-expand -*-
 ;;; (>>>FILE<<<) --- (>>>DESC<<<)
 
 ;; Copyright (C) (>>>YEAR<<<) Free Software Foundation, Inc.

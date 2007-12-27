@@ -16,7 +16,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (help-dwim-active-type help-dwim) "help-dwim" "help-dwim.el"
-;;;;;;  (18290 14322))
+;;;;;;  (18290 57471))
 ;;; Generated autoloads from help-dwim.el
 
 (autoload (quote help-dwim) "help-dwim" "\
@@ -61,7 +61,7 @@ If there is a process already running in `*perl*', switch to that buffer.
 ;;;***
 
 ;;;### (autoloads (pde-generate-loaddefs pde-list-core-modules pde-list-module-shadows)
-;;;;;;  "pde-util" "pde-util.el" (18290 21135))
+;;;;;;  "pde-util" "pde-util.el" (18290 57210))
 ;;; Generated autoloads from pde-util.el
 
 (autoload (quote pde-list-module-shadows) "pde-util" "\
@@ -82,8 +82,14 @@ Create pde-loaddefs.el
 ;;;***
 
 ;;;### (autoloads (pde-perl-mode-hook pde-indent-dwim pde-ido-imenu-completion
-;;;;;;  pde-compilation-buffer-name) "pde" "pde.el" (18290 16187))
+;;;;;;  pde-compilation-buffer-name pde-tabbar-register) "pde" "pde.el"
+;;;;;;  (18291 17836))
 ;;; Generated autoloads from pde.el
+
+(autoload (quote pde-tabbar-register) "pde" "\
+Add tabbar and register current buffer to group Perl.
+
+\(fn)" nil nil)
 
 (autoload (quote pde-compilation-buffer-name) "pde" "\
 Enable running multiple compilations.
@@ -125,8 +131,8 @@ and source-file directory for your debugger.
 
 ;;;***
 
-;;;### (autoloads (perldoc-tree perldoc) "perldoc" "perldoc.el" (18290
-;;;;;;  17830))
+;;;### (autoloads (perldoc-tree perldoc) "perldoc" "perldoc.el" (18291
+;;;;;;  2543))
 ;;; Generated autoloads from perldoc.el
 
 (autoload (quote perldoc) "perldoc" "\
@@ -252,30 +258,13 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (template-simple-expand template-simple-expand-template
-;;;;;;  template-tempo-expand template-skeleton-expand) "template-simple"
-;;;;;;  "template-simple.el" (18289 62316))
+;;;### (autoloads (template-simple-expand template-simple-expand-template)
+;;;;;;  "template-simple" "template-simple.el" (18291 1852))
 ;;; Generated autoloads from template-simple.el
 
-(autoload (quote template-skeleton-expand) "template-simple" "\
-Expand parsed templates with `skeleton-insert'.
-The parsed templates can be:
- - string: directly insert to buffer
- - name in `template-default-alist'
- - name in `template-skeleton-alist'
- - any valid skeleton element
+(define-template-expander skeleton template-skeleton-alist (skeleton-insert (cons nil template)))
 
-\(fn TEMPLATE)" nil nil)
-
-(autoload (quote template-tempo-expand) "template-simple" "\
-Expand parsed templates with `tempo-insert-template'.
-The parsed templates can be:
- - string: directly insert to buffer
- - name in `template-default-alist'
- - name in `template-tempo-alist'
- - any valid tempo element
-
-\(fn TEMPLATE)" nil nil)
+(define-template-expander tempo template-tempo-alist (let ((tempo-template template)) (tempo-insert-template (quote tempo-template) nil)))
 
 (autoload (quote template-simple-expand-template) "template-simple" "\
 Expand template in file.

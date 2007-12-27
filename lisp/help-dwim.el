@@ -252,6 +252,7 @@ the type, the code will eval then."
   "Build help-dwim-obarray from woman-topic-all-completions.
 With prefix arguments, force the caches of woman to be updated."
   (interactive "P")
+  (require 'woman)
   (if (and (not re-cache)
            (or 
             (and woman-expanded-directory-path woman-topic-all-completions)
@@ -273,8 +274,7 @@ With prefix arguments, force the caches of woman to be updated."
 (help-dwim-register
  '(woman . ["-+.:[_a-zA-Z0-9" help-dwim-woman-obarray nil help-dwim-woman] )
  nil
- '((require 'woman)
-   (help-dwim-build-woman-obarray)))
+ '((help-dwim-build-woman-obarray)))
 
 (provide 'help-dwim)
 ;;; help-dwim.el ends here

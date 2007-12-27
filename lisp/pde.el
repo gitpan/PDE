@@ -121,6 +121,7 @@
               (or (assoc-default name pde-buffer-tabbar-label)
                   name)))))
 
+;;;###autoload 
 (defun pde-tabbar-register ()
   "Add tabbar and register current buffer to group Perl."
   (require 'tabbar-x)
@@ -194,19 +195,16 @@
           (imenu--completion-buffer (cdr choice) prompt)
         choice))))
 
-(defun pde-template-expand (template)
-  "Setup varable for perl template."
-  (let ((template-default-alist template-default-alist)
-        template-expand-function
-        package)
-    (if (stringp template)
-        (setq template (template-compile-string template)))
-    (with-current-buffer (get-file-buffer template-file-name)
-      (setq package (or (pde-file-package) "None")))
-    (push (list "perl-module-name" package) template-default-alist)
-    (push (list "minimum-perl-version" pde-perl-version)
-          template-default-alist)
-    (template-skeleton-expand template)))
+(define-template-expander pde
+    (let (alist package)
+      (with-current-buffer (get-file-buffer template-file-name)
+        (setq package (or (pde-file-package) "None")))
+      (push (list "perl-module-name" package) alist)
+      (push (list "minimum-perl-version" pde-perl-version)
+            alist)
+      (nconc alist template-tempo-alist))
+  (let ((tempo-template template))
+    (tempo-insert-template 'tempo-template nil)))
 
 ;;;###autoload 
 (defun pde-indent-dwim ()
@@ -243,9 +241,12 @@ With prefix argument, reflesh the formated manpage."
   (if (re-search-forward "^=\\sw+" nil t)
       (let* ((mod
               (if buffer-file-name
-                  (file-name-sans-extension
-                   (file-name-nondirectory
-                    buffer-file-name))
+                  (progn
+                    (pde-set-project-root)
+                    (or (pde-file-package)
+                        (file-name-sans-extension
+                         (file-name-nondirectory
+                          buffer-file-name))))
                 (file-name-sans-extension (buffer-name))))
              (buf (format "*Woman 3pm %s*" mod)))
         (if (and arg (get-buffer buf))
@@ -296,7 +297,8 @@ With prefix argument, reflesh the formated manpage."
                  ["Perltidy DWIM" perltidy-dwim t]
                  ["Perltidy Region" perltidy-region t]
                  ["Perltidy Buffer" perltidy-buffer t]
-                 ["Perltidy Sub" perltidy-subroutine t]))))
+                 ["Perltidy Sub" perltidy-subroutine t])
+                ["List core modules" pde-list-core-modules t])))
       (define-key map pde-cperl-prefix pde-cperl-map)
       (define-key map pde-perltidy-prefix pde-perltidy-map)
       (define-key map pde-inf-perl-prefix pde-inf-perl-map)
@@ -314,10 +316,8 @@ With prefix argument, reflesh the formated manpage."
   (help-dwim-active-type 'perldoc)
   (set (make-local-variable 'imenu-tree-create-buffer-function)
        'pde-imenu-tree-create-buffer)
-  (set (make-local-variable 'compile-dwim-check-tools) nil)
-  (when (and buffer-file-name
-             (not (string-match "\\.\\(pm\\|pod\\)$" (buffer-file-name))))
-    (add-hook 'after-save-hook 'executable-chmod nil t)))
+  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p nil t)
+  (set (make-local-variable 'compile-dwim-check-tools) nil))
 
 (provide 'pde)
 ;;; pde.el ends here

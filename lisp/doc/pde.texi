@@ -52,15 +52,15 @@ Documentation License".
 * pde-project::                 Projects in perl
 * pde-util::                    Misc commands
 * template-simple::             New file with template
+* compile-dwim::                Smart compile commands
 * tabbar-x::                    Tabbar for particular buffers
 * help-dwim::                   Find documents using help-dwim
-* compile-dwim::                Smart compile commands
 * perldoc::                     Run perldoc using woman
 * perlapi::                     Find document in perlapi
 * windata::                     Window configuration to list
+* tree-mode::                   More commands on tree-widget
 * imenu-tree::                  Tree view for imenu
 * tags-tree::                   Tree view of TAGS
-* tree-mode::                   More commands on tree-widget
 * perltidy::                    Call perltidy
 * perldb-ui::                   Perl Debugger
 * inf-perl::                    Interactive perl shell
@@ -86,7 +86,7 @@ programing, and a tutorial for novice to start using emacs.
 This manual tries to describe the feature of each emacs lisp file
 provided and to be the guide for those who want to use them.
 
-@node Installation, pde-load, Introduction, Top
+@node Installation
 @chapter Installation
 
 Installing PDE is quit easy. When you download the archive of the PDE
@@ -120,7 +120,7 @@ following to .emacs:
 (load "pde-load")
 @end lisp
 
-@node pde-load, pde, Installation, Top
+@node pde-load
 @comment  node-name,  next,  previous,  up
 @chapter Default configuration for PDE
 
@@ -192,7 +192,7 @@ some fixup to cperl-mode
 The configuration is optimized so that most libraries are loaded when
 needed.
 
-@node pde, pde-vars, pde-load, Top
+@node pde
 @comment  node-name,  next,  previous,  up
 @chapter Integrate other libraries
 
@@ -428,7 +428,7 @@ The old C-c C-h commands are removed, and make
 @command{describe-prefix-bindings} work. If you realy need them,
 define them in @code{pde-cperl-map}.
 
-@node pde-vars, pde-project, pde, Top
+@node pde-vars
 @comment  node-name,  next,  previous,  up
 @chapter Global variables shared
 
@@ -436,7 +436,7 @@ define them in @code{pde-cperl-map}.
 perl can require it without load other PDE libaries, and user can
 define one variable for all libaries that use it.
 
-@node pde-project, pde-util, pde-vars, Top
+@node pde-project
 @comment  node-name,  next,  previous,  up
 @chapter  Projects in perl
 
@@ -461,7 +461,7 @@ Derive the package name of current buffer. The buffer should be a pm
 file.
 @end defun
 
-@node pde-util, template-simple, pde-project, Top
+@node pde-util
 @comment  node-name,  next,  previous,  up
 @chapter Misc commands
 
@@ -481,7 +481,7 @@ lists. If the module can found in @@INC or @code{pde-load-path} parent
 directory, set this variable to let perl found the module.
 @end defopt
 
-@node template-simple, tabbar-x, pde-util, Top
+@node template-simple
 @comment  node-name,  next,  previous,  up
 @chapter New file with template
 
@@ -501,8 +501,19 @@ is handled by @code{template-expand-function}.
 @defopt template-expand-function
 Functions to expand parsed template. There are two candicate functions
 available in template-simple: @code{template-skeleton-expand} and
-@code{template-tempo-expand}.
+@code{template-tempo-expand}. Default function is
+@code{template-tempo-expand}, because I think tempo provide more
+fetures and flexibility than skeleton.
 @end defopt
+
+@defun define-template-expander name alist &rest body
+Define a new type of @code{template-expand-function}. NAME is used to
+create a function template-<NAME>-expand. ALIST can be a symbol or a
+form to return a list of symbol table add to @code{template-default-alist}.
+BODY is the code to expand and insert the template. the value of
+variable TEMPLATE is the translated template. The element of parsed
+template is translated by @code{template-expansion}
+@end defun
 
 @defun template-simple-expand-template file
 Expand template in file.
@@ -535,8 +546,12 @@ variable, for example:
        )")
 @end verbatim
 
-This will expand by template-tempo-expand but not default expand
-function template-skeleton-expand.
+This will expand by @code{template-tempo-expand} but not default
+expand function. Luckily in most case, template of tempo and skeleton
+can be the same, so you don't have to set
+@code{template-expand-function}. If your template uses element that
+only exists in tempo or skeleton, you'd better set it in template to
+make sure the @code{template-simple-expand} select the correct one.
 
 The major purpose of template-simple is used for fill empty file using
 predefined template.
@@ -549,9 +564,11 @@ A list of directories for lookup template files. Default is
 @defun template-derive-template
 Find proper template for current file. The template file is a file
 with name ``TEMPLATE'' and the same extension of current file under
-@code{template-directory}. If the file didn't have extension, the
-template file's extension is current file name, for example,
-``TEMPLATE.Makefile'' is template file for ``Makefile''.
+@code{template-directory}. You can add a suffix ``.tpl'' to the
+template file name too, just for compatible with templates provide by
+template.el. If the file didn't have extension, the template file's
+extension is current file name, for example, ``TEMPLATE.Makefile'' is
+template file for ``Makefile''.
 @end defun
 
 @defopt template-default-alist
@@ -614,7 +631,7 @@ or
     */
 @end verbatim
 
-@node tabbar-x, help-dwim, template-simple, Top
+@node tabbar-x
 @comment  node-name,  next,  previous,  up
 @chapter Tabbar for particular buffers
 
@@ -627,49 +644,7 @@ exists for this purpose.
 Register the buffer to the one group.
 @end defun
 
-@node help-dwim, compile-dwim, tabbar-x, Top
-@comment  node-name,  next,  previous,  up
-@chapter Find documents using help-dwim
-
-A big obstacle for novice to used to emacs is that there are so many
-keys to remember. I like dwim commands. @file{help-dwim.el} provide a single
-command as interface for several kinds of document commands, such as
-@command{describe-function}, @command{describe-variable},
-@command{woman}. And you can add more if you follow the rules.
-
-A type of help-dwim commands should provide:
-@itemize
-@item
-a functions or a character sets to find which symbol under point
-@item
-an obarray to search whether the symbol belong to this type
-@item
-an optional predicate function to filter unwanted symbol
-@item
-a handler to show the document of the symbol
-@end itemize
-
-@defun help-dwim-register type activate &optional body
-Register a new type of help command. An new type has a form (TYPE .
-[FINDER OBARRAY PREDICATE HANDLER]). If ACTIVATE is non-nil, the type
-will add to @code{help-dwim-active-type}, and BODY will eval
-intermediately. BODY is the code to eval when the type is activated.
-If the type is register without activated, the BODY will add to
-@code{help-dwim-autoloads}. When you use @code{help-dwim-active-type}
-or @code{help-dwim-customize-type} add the type, the code will also
-eval then.
-@end defun
-
-@deffn Command help-dwim-customize-type
-Customize which type of help command should activate.
-@end deffn
-
-@defun help-dwim-active-type type &optional append
-Active a type for current buffer *ONLY*.
-The TYPE will gain a highest prority unless APPEND is non-nil.
-@end defun
-
-@node compile-dwim, perldoc, help-dwim, Top
+@node compile-dwim
 @comment  node-name,  next,  previous,  up
 @chapter Smart compile commands
 
@@ -716,7 +691,49 @@ also change the value locally by @code{make-local-variable} in
 mode-hook for certain files.
 @end defopt
 
-@node perldoc, perlapi, compile-dwim, Top
+@node help-dwim
+@comment  node-name,  next,  previous,  up
+@chapter Find documents using help-dwim
+
+A big obstacle for novice to used to emacs is that there are so many
+keys to remember. I like dwim commands. @file{help-dwim.el} provide a single
+command as interface for several kinds of document commands, such as
+@command{describe-function}, @command{describe-variable},
+@command{woman}. And you can add more if you follow the rules.
+
+A type of help-dwim commands should provide:
+@itemize
+@item
+a functions or a character sets to find which symbol under point
+@item
+an obarray to search whether the symbol belong to this type
+@item
+an optional predicate function to filter unwanted symbol
+@item
+a handler to show the document of the symbol
+@end itemize
+
+@defun help-dwim-register type activate &optional body
+Register a new type of help command. An new type has a form (TYPE .
+[FINDER OBARRAY PREDICATE HANDLER]). If ACTIVATE is non-nil, the type
+will add to @code{help-dwim-active-type}, and BODY will eval
+intermediately. BODY is the code to eval when the type is activated.
+If the type is register without activated, the BODY will add to
+@code{help-dwim-autoloads}. When you use @code{help-dwim-active-type}
+or @code{help-dwim-customize-type} add the type, the code will also
+eval then.
+@end defun
+
+@deffn Command help-dwim-customize-type
+Customize which type of help command should activate.
+@end deffn
+
+@defun help-dwim-active-type type &optional append
+Active a type for current buffer *ONLY*.
+The TYPE will gain a highest prority unless APPEND is non-nil.
+@end defun
+
+@node perldoc
 @comment  node-name,  next,  previous,  up
 @chapter Run perldoc using woman
 
@@ -753,7 +770,7 @@ the file in other window.
 Find the module under point in other window without prompt.
 @end deffn
 
-@node perlapi, windata, perldoc, Top
+@node perlapi
 @comment  node-name,  next,  previous,  up
 @chapter Find document in perlapi
 
@@ -765,7 +782,7 @@ If setted, the definition of the symbol can be found when put the
 button in the document.
 @end defopt
 
-@node windata, imenu-tree, perlapi, Top
+@node windata
 @comment  node-name,  next,  previous,  up
 @chapter Window configuration to list
 
@@ -899,102 +916,7 @@ new window will only take the space from the selected window. When
 FRAME-P is non-nil except 'window, the original window still has
 the same configuration.
 
-@node imenu-tree, tags-tree, windata, Top
-@comment  node-name,  next,  previous,  up
-@chapter Tree view for imenu
-
-imenu provide an excellent code navigating method. @file{imenu-tree.el} make the
-tags visualized using tree-widget.
-
-@defopt imenu-tree-auto-update
-If Non-nil, the imenu-tree will update automaticly. Also, if the
-imenu-tree is not visible in the window, it will automaticly scroll to
-make it visible.
-@end defopt
-
-@defopt imenu-tree-update-interval
-Seconds between update imenu tree.
-@end defopt
-
-@deffn Command imenu-tree-toggle-auto-update
-Toggle imenu-tree auto update.
-With prefix argument, turn on auto update.
-@end deffn
-
-@defopt imenu-tree-create-buffer-function
-A function to group imenu-tree to various buffer. Default is nil,
-means using only one buffer.
-@end defopt
-
-@defopt imenu-tree-name
-The name for the root node. Default is the ``mode-name: buffer-name''.
-@end defopt
-
-@defopt imenu-tree-windata
-Arguments to set the window buffer display.
-See @code{windata-display-buffer} for setup the arguments.
-@end defopt
-
-@node tags-tree, tree-mode, imenu-tree, Top
-@comment  node-name,  next,  previous,  up
-@chapter Tree view of TAGS
-
-@file{tags-tree.el} read TAGS file and display them using tree-widget.
-
-@defopt tags-tree-create-buffer-function
-A function to group tags-tree to various buffer. Default is nil,
-means using only one buffer.
-@end defopt
-
-@defopt tags-tree-group-file-function
-A function to group files.
-Accept one parameter, a file list in TAGS file. Return a tree like:
-@verbatim
-   ("Root name"
-    ("Group1"
-     ("file1" . "full name of file1"))
-    ("Group2"
-     ("subgroup"
-      ("file2" . "full name of file2"))))
-@end verbatim
-
-Default is tags-tree-group-file-by-name, Which group all files
-according to file path.
-@end defopt
-
-@defopt tags-tree-group-tags-function
-A function to group tags.
-Accept one parameter, a list of tags info, return a tree like:
-@verbatim
-  ((("group1")
-    (("subgroup1")
-     ("tag1" . tag-info))
-    ("tag2" . tag-info))
-   (("group2")
-    ("tag3" . tag-info)))
-@end verbatim
-
-Default is tags-tree-group-tags which group by
-@code{tags-tree-group-tags-expression} which much like
-@code{imenu-generic-expression}. 
-@end defopt
-
-The TAGS file can be update by extern file when in tags-tree.
-@table @kbd
-@item G
-@kindex G (tags-tree-update-file)
-@findex tags-tree-update-file
-@command{tags-tree-update-file} - update TAGS of current file under
-point or file of tag under point.
-
-@end table
-
-@defopt tags-tree-tags-update-program
-Program to update TAGS for a file. Default is @file{myetags} which is
-written using perl.
-@end defopt
-
-@node tree-mode, perltidy, tags-tree, Top
+@node tree-mode
 @comment  node-name,  next,  previous,  up
 @chapter More commands on tree-widget
 
@@ -1072,14 +994,109 @@ close, empty and leaf. tree-mode provide a method to settup icon of
 push-button by put an addition attribute :button-icon in tree-widget
 node.
 
-@node perltidy, perldb-ui, tree-mode, Top
+@node imenu-tree
+@comment  node-name,  next,  previous,  up
+@chapter Tree view for imenu
+
+imenu provide an excellent code navigating method. @file{imenu-tree.el} make the
+tags visualized using tree-widget.
+
+@defopt imenu-tree-auto-update
+If Non-nil, the imenu-tree will update automaticly. Also, if the
+imenu-tree is not visible in the window, it will automaticly scroll to
+make it visible.
+@end defopt
+
+@defopt imenu-tree-update-interval
+Seconds between update imenu tree.
+@end defopt
+
+@deffn Command imenu-tree-toggle-auto-update
+Toggle imenu-tree auto update.
+With prefix argument, turn on auto update.
+@end deffn
+
+@defopt imenu-tree-create-buffer-function
+A function to group imenu-tree to various buffer. Default is nil,
+means using only one buffer.
+@end defopt
+
+@defopt imenu-tree-name
+The name for the root node. Default is the ``mode-name: buffer-name''.
+@end defopt
+
+@defopt imenu-tree-windata
+Arguments to set the window buffer display.
+See @code{windata-display-buffer} for setup the arguments.
+@end defopt
+
+@node tags-tree
+@comment  node-name,  next,  previous,  up
+@chapter Tree view of TAGS
+
+@file{tags-tree.el} read TAGS file and display them using tree-widget.
+
+@defopt tags-tree-create-buffer-function
+A function to group tags-tree to various buffer. Default is nil,
+means using only one buffer.
+@end defopt
+
+@defopt tags-tree-group-file-function
+A function to group files.
+Accept one parameter, a file list in TAGS file. Return a tree like:
+@verbatim
+   ("Root name"
+    ("Group1"
+     ("file1" . "full name of file1"))
+    ("Group2"
+     ("subgroup"
+      ("file2" . "full name of file2"))))
+@end verbatim
+
+Default is tags-tree-group-file-by-name, Which group all files
+according to file path.
+@end defopt
+
+@defopt tags-tree-group-tags-function
+A function to group tags.
+Accept one parameter, a list of tags info, return a tree like:
+@verbatim
+  ((("group1")
+    (("subgroup1")
+     ("tag1" . tag-info))
+    ("tag2" . tag-info))
+   (("group2")
+    ("tag3" . tag-info)))
+@end verbatim
+
+Default is tags-tree-group-tags which group by
+@code{tags-tree-group-tags-expression} which much like
+@code{imenu-generic-expression}. 
+@end defopt
+
+The TAGS file can be update by extern file when in tags-tree.
+@table @kbd
+@item G
+@kindex G (tags-tree-update-file)
+@findex tags-tree-update-file
+@command{tags-tree-update-file} - update TAGS of current file under
+point or file of tag under point.
+
+@end table
+
+@defopt tags-tree-tags-update-program
+Program to update TAGS for a file. Default is @file{myetags} which is
+written using perl.
+@end defopt
+
+@node perltidy
 @comment  node-name,  next,  previous,  up
 @chapter Calling perltidy 
 
 A collection of commands to call perltidy on buffer or region.
 @xref{pde}. 
 
-@node perldb-ui, inf-perl, perltidy, Top
+@node perldb-ui
 @comment  node-name,  next,  previous,  up
 @chapter Perl Debugger
 
@@ -1193,7 +1210,7 @@ variables may conflict.
 Sometimes may not run stable. You may have to restart the debugger.
 @end itemize
 
-@node inf-perl, Function Index, perldb-ui, Top
+@node inf-perl
 @comment  node-name,  next,  previous,  up
 @chapter Interactive perl shell
 

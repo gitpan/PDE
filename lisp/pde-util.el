@@ -65,7 +65,6 @@
 (defun pde-list-core-modules ()
   "Display a list of core modules."
   (interactive)
-  (require 'button)
   (let (( inhibit-read-only t)
         (bufname "*Perl Core Modules*"))
     (if (get-buffer bufname)
@@ -85,13 +84,15 @@
                                               (button-label but)
                                               perldoc-obarray)))))
       (goto-char (point-min))
+      (setq buffer-read-only t)
+      (view-mode t)
       (message "Push button to show the pod."))))
 
+(autoload 'generate-file-autoloads "autoload")
 ;;;###autoload 
 (defun pde-generate-loaddefs ()
   "Create pde-loaddefs.el"
   (interactive)
-  (require 'autoload)
   (with-temp-buffer
     (dolist (file (directory-files pde-load-path t "\\.el$"))
       (generate-file-autoloads file))

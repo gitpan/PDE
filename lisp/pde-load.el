@@ -43,8 +43,6 @@
 
 ;; autoloads
 (load "pde-loaddefs")
-(autoload 'executable-chmod "executable"
-          "Make sure the file is executable.")
 (autoload 'pde-perl-mode-hook "pde" "Hooks run when enter perl-mode")
 
 (require 'help-dwim)
@@ -52,8 +50,7 @@
  '(perldoc . [ "0-9a-zA-Z_:." perldoc-obarray nil perldoc ])
  nil
  '((require 'perldoc)
-   (or (perldoc-recache-everyday)
-       (perldoc-build-obarray))))
+   (perldoc-recache-everyday)))
 
 (help-dwim-register
  '(perlapi . [ "a-zA-Z0-9_" perlapi-obarray nil perlapi ])
@@ -80,6 +77,8 @@
   (setq cperl-lazy-help-time 2)
 
   (setq completion-ignore-case t)
+  ;; many DWIM commands work only in transient-mark-mode
+  (transient-mark-mode t)
   ;; don't use ido-imenu unless turn on ido-mode
   (ido-mode t)
   (eval-after-load "imenu"
@@ -88,7 +87,7 @@
   (require 'complete)           ; need for define PC-include-file-path
   (partial-completion-mode t)
   (setq PC-include-file-path
-        (nconc PC-include-file-path pde-perl-inc))
+        (append PC-include-file-path pde-perl-inc))
   (setq imenu-tree-auto-update t)
   (setq compilation-buffer-name-function 'pde-compilation-buffer-name)
   (add-hook 'perldoc-mode-hook 'pde-tabbar-register)

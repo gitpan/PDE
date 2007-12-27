@@ -1,4 +1,4 @@
-# -*- template-expand-function: pde-template-expand -*-
+# -*- template-expand-function: template-pde-expand -*-
 =head1 NAME
 
 (>>>PERL_MODULE_NAME<<<) - Perl extension for blah blah blah
