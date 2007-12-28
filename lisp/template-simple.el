@@ -130,6 +130,7 @@ to replace with the file name.")
 
 (defvar template-parens (cons "(>>>" "<<<)")
   "Open and close parenthesis.")
+(put 'template-parens 'safe-local-variable 'consp)
 
 (defvar template-file-name nil
   "Internal variable: full name of the file when template expanded.")
@@ -316,7 +317,7 @@ Parse the template to parsed templates with `template-compile'.
 Use `template-expand-function' to expand the parsed template."
   ;; in case the template-expand-function is overide in template
   (let ((template-file-name (or buffer-file-name
-                                (concat default-directory
+                                (concat (file-name-as-directory default-directory)
                                         (buffer-name))))
         (template-expand-function template-expand-function)
         err)

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
-use version; our $VERSION = qv("0.02");
+use version; our $VERSION = qv("0.2.2");
 
 1;
 
@@ -84,7 +84,10 @@ please drop me a note at I<wenbinye@gmail.com>
 =head1 SEE ALSO
 
 More document for PDE:
-doc/pde.info, doc/QuickStart.html
+
+L<lisp/doc/pde/index.html>  - PDE User Guide
+
+L<lisp/doc/QuickStartEn.html>  - A tutor of emacs configuration for perl
 
 
 More emacs lisp libraries or Perl Modules:

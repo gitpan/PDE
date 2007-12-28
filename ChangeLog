@@ -1,34 +1,52 @@
+2007-12-28  Ye Wenbin  <wenbinye@gmail.com>
+
+	* Build.PL: use create_makefile_pl to create Makefile.PL. Thanks
+	Michael G Schwern for give the suggestion.
+
 2007-12-27  Ye Wenbin  <wenbinye@gmail.com>
 
-	* lisp/pde-load.el (pde-extra-setting): don't use nconc, too dangerous
+	* lisp/tree-mode.el (tree-mode-toggle-expand): new command
+	available for expand and contract node
 
-	* lisp/pde.el (pde-perl-mode-hook): Use executable-make-buffer-file-executable-if-script-p instead of executable-chmod
+	* lisp/pde-load.el (pde-extra-setting): don't use nconc, too
+	dangerous
+
+	* lisp/pde.el (pde-perl-mode-hook): Use
+	executable-make-buffer-file-executable-if-script-p instead of
+	executable-chmod
 
 	* lisp/perldoc.el (perldoc-init): New function to init obarray
 
 	* lib/PDE.pm: Mention other emacs libraries and Perl modules
 
-	* lisp/pde.el (pde-pod-to-manpage): using pde-file-package to detect module name.
-	(pde-tabbar-register): make function autoload so you can use perldoc-tree without enter cperl-mode
+	* lisp/pde.el (pde-pod-to-manpage): using pde-file-package to
+	detect module name.
+	(pde-tabbar-register): make function autoload so you can use
+	perldoc-tree without enter cperl-mode
 
-	* lisp/template-simple.el (define-template-expander): Easy to define new expand function.
+	* lisp/template-simple.el (define-template-expander): Easy to
+	define new expand function.
 
 	* lisp/perldoc.el (perldoc-pragam-expand): fix typo
 
-	* lisp/template-simple.el (template-kill-ring-save): A command help write template in string
+	* lisp/template-simple.el (template-kill-ring-save): A command
+	help write template in string
 	(template-compile): Not handle list of element now
-	(template-expand-function): Default function is template-tempo-expand now.
+	(template-expand-function): Default function is
+	template-tempo-expand now.
 
-	* lisp/templates/TEMPLATE.el.tpl: Change file name in case somebody put this to library and become a library TEMPLATE.el.
+	* lisp/templates/TEMPLATE.el.tpl: Change file name in case
+	somebody put this to library and become a library TEMPLATE.el.
 
 	* lisp/template-simple.el (template-skeleton-expand)
 	(template-tempo-expand): Fix bugs introduced
 
-	* lisp/pde-util.el (pde-generate-loaddefs): For automatic create pde-loaddefs.el
+	* lisp/pde-util.el (pde-generate-loaddefs): For automatic create
+	pde-loaddefs.el
 
-	* lisp/pde-load.el (pde-extra-setting): Make transient-mark-mode default turn on
+	* lisp/pde-load.el (pde-extra-setting): Make transient-mark-mode
+	default turn on
 
 2007-12-26  Ye Wenbin  <wenbinye@gmail.com>
 
 	* First Release!
-

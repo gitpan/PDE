@@ -1,4 +1,4 @@
-# -*- template-expand-function: template-pde-expand -*-
+# -*- mode: perl; template-expand-function: template-pde-expand -*-
 package (>>>PERL_MODULE_NAME<<<);
 
 use strict; 

@@ -1,13 +1,29 @@
 #!/usr/bin/perl
 
 use Module::Build;
-my $class = Module::Build->subclass( code => <<'EOF');
+my $class = Module::Build->subclass(
+    code => do {local $/ = undef; <DATA>}
+);
+
+my $build = $class->new(
+    module_name => 'PDE',
+    license => 'perl',
+    add_to_cleanup => ['lisp/*.elc'],
+    create_makefile_pl => 'passthrough',
+);
+$build->add_build_element('elc');
+$build->create_build_script;
+
+__DATA__
 use File::stat;
 use File::Basename;
 use ExtUtils::Install;
 
 sub process_elc_files {
     my $self = shift;
+    if ( exists $self->{args}{noelc} ) {
+        return;
+    }
     # Files to ignore byte-compile
     my @ignore = qw(pde-load.el pde-loaddefs.el pde-patch.el);
     my @el = glob("lisp/*.el");
@@ -63,6 +79,7 @@ sub ACTION_info {
 
 sub ACTION_html {
     my $self = shift;
+    $self->depends_on('muse');
     my $html = 'lisp/doc/pde.html';
     my $htmldir = 'lisp/doc/pde'; 
     my $texi = "lisp/doc/pde.texi";
@@ -72,7 +89,10 @@ sub ACTION_html {
         print qq/makeinfo --html -o $htmldir $texi\n/;
         system("makeinfo", "--html", "-o", $htmldir, $texi);
     }
-    return;
+    else {
+        print "html documents is updated to date.\n";
+    }
+    return $self->SUPER::ACTION_html(@_);
 }
 
 sub ACTION_muse {
@@ -101,16 +121,5 @@ sub ACTION_dist {
     my $self = shift;
     $self->depends_on('info');
     $self->depends_on('html');
-    $self->depends_on('muse');
     return $self->SUPER::ACTION_dist(@_);
 }
-
-EOF
-
-my $build = $class->new(
-    module_name => 'PDE',
-    license => 'perl',
-    add_to_cleanup => [glob('lisp/*.elc')],
-);
-$build->add_build_element('elc');
-$build->create_build_script;
