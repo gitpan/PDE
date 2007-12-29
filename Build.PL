@@ -53,6 +53,14 @@ sub ACTION_test {
     return 1;
 }
 
+sub ACTION_fakeinstall {
+    my $self        = shift;
+    $self->SUPER::ACTION_install(@_);
+    my $home = $ENV{HOME};
+    my $elispdir = $self->{args}{elispdir} || "$home/.emacs.d/pde";
+    ExtUtils::Install::install( {lisp => $elispdir}, !$self->quiet, 1,
+                                $self->{args}{uninst} || 0 );
+}
 
 sub ACTION_install {
     my $self        = shift;
@@ -77,7 +85,7 @@ sub ACTION_info {
     return;
 }
 
-sub ACTION_html {
+sub ACTION_disthtml {
     my $self = shift;
     $self->depends_on('muse');
     my $html = 'lisp/doc/pde.html';
@@ -92,7 +100,7 @@ sub ACTION_html {
     else {
         print "html documents is updated to date.\n";
     }
-    return $self->SUPER::ACTION_html(@_);
+    return;
 }
 
 sub ACTION_muse {
@@ -120,6 +128,6 @@ sub ACTION_muse {
 sub ACTION_dist {
     my $self = shift;
     $self->depends_on('info');
-    $self->depends_on('html');
+    $self->depends_on('disthtml');
     return $self->SUPER::ACTION_dist(@_);
 }

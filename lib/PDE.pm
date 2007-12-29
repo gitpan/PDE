@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
-use version; our $VERSION = qv("0.2.2");
+use version; our $VERSION = qv("0.2.3");
 
 1;
 

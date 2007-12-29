@@ -132,6 +132,15 @@ With prefix argument, select imenu tree buffer window."
       (if arg
           (select-window win)))))
 
+(defun imenu-tree-kill ()
+  (let ((tree imenu-tree))
+    (when (and tree
+               imenu-tree-buffer
+               (buffer-live-p imenu-tree-buffer))
+      (with-current-buffer imenu-tree-buffer
+        (ignore-errors
+          (tree-mode-delete tree))))))
+
 (defun imenu-tree-show ()
   "If the `imenu-tree' of current buffer is not visible, show the tree."
   (interactive)
@@ -162,15 +171,6 @@ With prefix argument, turn on auto update."
               (set (make-local-variable 'imenu-tree-need-update) t)
               (add-hook 'after-change-functions 'imenu-tree-after-change nil t)))
           (buffer-list))))
-
-(defun imenu-tree-kill ()
-  (let ((tree imenu-tree))
-    (when (and tree
-               imenu-tree-buffer
-               (buffer-live-p imenu-tree-buffer))
-      (with-current-buffer imenu-tree-buffer
-        (ignore-errors
-          (tree-mode-delete tree))))))
 
 (defun imenu-tree-update-timer ()
   "Update and show the tree if needed."

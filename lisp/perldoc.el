@@ -71,6 +71,9 @@ and pragma, the pragma is add \".pod\" to distinguish from function.")
 (defvar perldoc-tree-buffer "*Perldoc*"
   "*Buffer name for `perldoc-tree'")
 
+(defvar perldoc-tree-theme "default"
+  "*Theme of tree-widget.")
+
 (defvar perldoc-tree-windata '(frame left 0.3 delete)
   "*Arguments to set the window buffer display.
 See `windata-display-buffer' for setup the arguments.")
@@ -325,7 +328,7 @@ Don't add \": \" in PROMPT."
   "List perl module using tree-widget.
 
 \\{perldoc-mode-map}"
-  )
+  (tree-widget-set-theme perldoc-tree-theme))
 
 ;;;###autoload 
 (defun perldoc-tree ()
@@ -334,8 +337,8 @@ Don't add \": \" in PROMPT."
   (perldoc-init t)
   (unless (get-buffer perldoc-tree-buffer)
     (with-current-buffer (get-buffer-create perldoc-tree-buffer)
-      (widget-create (perldoc-tree-widget))
       (perldoc-mode)
+      (widget-create (perldoc-tree-widget))
       (widget-setup)
       (goto-char (point-min))))
   (select-window (apply 'windata-display-buffer

@@ -36,6 +36,7 @@
 (require 'pde-project)
 (require 'imenu-tree)
 (require 'perldoc)
+(require 'template-simple)
 
 (defvar pde-initialized nil
   "Indicate whether PDE has been initialized.")
@@ -196,13 +197,11 @@
         choice))))
 
 (define-template-expander pde
-    (let (alist package)
-      (with-current-buffer (get-file-buffer template-file-name)
-        (setq package (or (pde-file-package) "None")))
-      (push (list "perl-module-name" package) alist)
-      (push (list "minimum-perl-version" pde-perl-version)
-            alist)
-      (nconc alist template-tempo-alist))
+    (progn
+      (pde-set-project-root)
+      `(("perl-module-name" (or (pde-file-package) "None"))
+        ("minimum-perl-version" pde-perl-version)
+        ,@template-tempo-alist))
   (let ((tempo-template template))
     (tempo-insert-template 'tempo-template nil)))
 
