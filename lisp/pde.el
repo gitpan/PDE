@@ -143,13 +143,12 @@
 (defalias 'pde-imenu-tree 'imenu-tree)
 ;;}}}
 
+;;;###autoload 
 (defun pde-ffap-locate (name &optional force)
   "Return cperl module for ffap."
   (let ((mod (perldoc-module-ap)))
     (if mod
         (perldoc-locate-module mod))))
-(require 'ffap)
-(add-to-list 'ffap-alist  '(cperl-mode . pde-ffap-locate))
 
 ;;;###autoload 
 (defun pde-compilation-buffer-name (mode)
@@ -247,7 +246,7 @@ With prefix argument, reflesh the formated manpage."
                          (file-name-nondirectory
                           buffer-file-name))))
                 (file-name-sans-extension (buffer-name))))
-             (buf (format "*Woman 3pm %s*" mod)))
+             (buf (format "*WoMan Perldoc %s*" mod)))
         (if (and arg (get-buffer buf))
             (kill-buffer buf))
         (unless (buffer-live-p (get-buffer buf))
@@ -316,7 +315,9 @@ With prefix argument, reflesh the formated manpage."
   (set (make-local-variable 'imenu-tree-create-buffer-function)
        'pde-imenu-tree-create-buffer)
   (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p nil t)
-  (set (make-local-variable 'compile-dwim-check-tools) nil))
+  (set (make-local-variable 'compile-dwim-check-tools) nil)
+  (when pde-extra-setting
+    (tempo-use-tag-list 'tempo-perl-tags)))
 
 (provide 'pde)
 ;;; pde.el ends here

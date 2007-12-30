@@ -363,7 +363,11 @@ Note if the tree is not opened, It will open some node when need.
               (widget-apply-action child)))
         (widget-get tree :children)))
 
-(defun tree-mode-toggle-expand (arg)
+(defun tree-mode-toggle-expand-node (&rest ignore)
+  "Put it to :notify of tree widget node."
+  (tree-mode-toggle-expand))
+
+(defun tree-mode-toggle-expand (&optional arg)
   (interactive "P")
   (let ((me (tree-mode-icon-current-line))
         expandp open)

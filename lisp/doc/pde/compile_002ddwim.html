@@ -5,8 +5,8 @@
 <meta name="description" content="Perl Development Environment">
 <meta name="generator" content="makeinfo 4.8">
 <link title="Top" rel="start" href="index.html#Top">
-<link rel="prev" href="template_002dsimple.html#template_002dsimple" title="template-simple">
-<link rel="next" href="tabbar_002dx.html#tabbar_002dx" title="tabbar-x">
+<link rel="prev" href="tempo_002dx.html#tempo_002dx" title="tempo-x">
+<link rel="next" href="help_002ddwim.html#help_002ddwim" title="help-dwim">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <!--
 This is manual for PDE version 0.01
@@ -39,14 +39,14 @@ This is manual for PDE version 0.01
 <p>
 <a name="compile-dwim"></a>
 <a name="compile_002ddwim"></a>
-Next:&nbsp;<a rel="next" accesskey="n" href="tabbar_002dx.html#tabbar_002dx">tabbar-x</a>,
-Previous:&nbsp;<a rel="previous" accesskey="p" href="template_002dsimple.html#template_002dsimple">template-simple</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="help_002ddwim.html#help_002ddwim">help-dwim</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="tempo_002dx.html#tempo_002dx">tempo-x</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <hr>
 </div>
 
 <!-- node-name,  next,  previous,  up -->
-<h2 class="chapter">10 Smart compile commands</h2>
+<h2 class="chapter">12 Smart compile commands</h2>
 
 <p>cperl-mode recommend using mode-compile, but I don't like
 mode-compile. Instead, smart-compile+.el does a good job. But I found
@@ -55,7 +55,7 @@ are separated for a language. So I rewrite it to
 compile-dwim(again, I like dwim).
 
 <div class="defun">
-&mdash; User Option: <b>compile-dwim-alist</b><var><a name="index-compile_002ddwim_002dalist-76"></a></var><br>
+&mdash; User Option: <b>compile-dwim-alist</b><var><a name="index-compile_002ddwim_002dalist-80"></a></var><br>
 <blockquote><p>Settings for certain file type. 
 A list like which has form
  (TYPE CONDITION COMPILE-COMMAND RUN-COMMAND EXE-FILE).
@@ -87,7 +87,7 @@ Usually, script language don't need to set EXE-FILE.
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; User Option: <b>compile-dwim-check-tools</b><var><a name="index-compile_002ddwim_002dcheck_002dtools-77"></a></var><br>
+&mdash; User Option: <b>compile-dwim-check-tools</b><var><a name="index-compile_002ddwim_002dcheck_002dtools-81"></a></var><br>
 <blockquote><p>Whether checking makefile or ant or else. Default is turn on. You can
 also change the value locally by <code>make-local-variable</code> in
 mode-hook for certain files. 

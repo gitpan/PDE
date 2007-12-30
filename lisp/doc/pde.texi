@@ -50,10 +50,12 @@ Documentation License".
 * pde::                         Integrate other libraries
 * pde-vars::                    Global variables shared
 * pde-project::                 Projects in perl
+* pde-abbv::                    Abbrev for perl
 * pde-util::                    Misc commands
 * template-simple::             New file with template
-* compile-dwim::                Smart compile commands
 * tabbar-x::                    Tabbar for particular buffers
+* tempo-x::                     Additional elements for tempo
+* compile-dwim::                Smart compile commands
 * help-dwim::                   Find documents using help-dwim
 * perldoc::                     Run perldoc using woman
 * perlapi::                     Find document in perlapi
@@ -69,6 +71,7 @@ Indices
 * Function Index::              
 * Variable Index::              
 * Keybinding Index::            
+
 
 @end menu
 
@@ -461,6 +464,36 @@ Derive the package name of current buffer. The buffer should be a pm
 file.
 @end defun
 
+@node pde-abbv
+@comment  node-name,  next,  previous,  up
+@chapter Abbrev for perl
+@file{pde-abbv.el} contains a few abbrevs that I think helpful. You
+can send me you abbrev if you think it is handy. I appreciate for
+that.
+
+@itemize
+@item newx  
+Create subroutine new for Object module.
+@item dumpx 
+expand for Data::Dumper::Dumper.
+@item usetk 
+Use Tk
+@item exportx 
+Write Exporter tags
+@item opend 
+expand for build-in function `opendir'. snippet available
+@item openf 
+expand for build-in function `open'. snippet available
+@item fromto 
+expand for Encode::from_to, only snippet available
+@item usegtk 
+Use Gtk2
+@item useenc 
+Use Encode
+@item usedump 
+Use Data::Dumper
+@end itemize
+
 @node pde-util
 @comment  node-name,  next,  previous,  up
 @chapter Misc commands
@@ -643,6 +676,153 @@ exists for this purpose.
 @defun tabbar-x-register buffer group
 Register the buffer to the one group.
 @end defun
+
+@node tempo-x
+@comment  node-name,  next,  previous,  up
+@chapter Additional elements for tempo
+
+@file{tempo.el} is a extensible library for abbrevs. It provide more
+features than @file{skeleton.el}, such as move between marks, 
+names for prompt, user elements and so on. @file{tempo-x.el} provides
+some commands and additional elements that may helpful.
+
+@deffn Command tempo-x-space
+A simple command to enable expand tempo like abbrev. The command
+@code{tempo-space} given by the author of @file{tempo.el} is not
+compatiable for abbrev-mode.
+@end deffn
+
+@deffn Command tempo-x-rebuild
+Reinstall new tempo template for all buffer. If you defined a new
+tempo-template in certain tag-list, you can't use it intermediately.
+Call the commands to force build connections for all buffer again.
+@end deffn
+
+@defun tempo-x-test-template
+A macro to test tempo template before define it.
+@end defun
+
+Here is a list of new elements:
+
+@itemize
+@item pi
+@item Pi
+
+``pi'' and ``Pi'' like standard tempo element ``p'' except they can
+have a default value and can be completing read.
+
+@defun tempo-x-insert-prompt prompt &optional default save-name no-insert
+The beta version of tempo.el also implement new prompt element, but I
+still an element that can accept default value.
+PROMPT can be a string or a list. When it is a string, it is like
+standard tempo element @code{p}, but you can give a DEFAULT string.
+If it is a list, the prompt will be the parameters of
+@code{completing-read}. But you should give the default value in
+DEFAULT not in PROMPT.
+
+Here is some example:
+@lisp
+(pi "variable: " "foo" var)
+(pi ("variable: " ("foo" "bar")) "foo" var)
+@end lisp
+@end defun
+
+@item R
+
+skeleton has some handy elements to control recursive expanding. ``R''
+is such tempo elements to do this job. The syntax of the element is:
+@lisp
+(R before-test-elements
+   (& condition
+      final-form)
+   after-test-elements)
+@end lisp
+
+First it insert BEFORE-TEST-ELEMENTS to buffer. then test the
+CONDITION, if the CONDITION is null, eval FINAL-FORM and quit the
+loop. Otherwise insert AFTER-TEST-ELEMENTS and back to start. The
+CONDITION can be a name saved in BEFORE-TEST-ELEMENTS, it will
+automatic clean after test, so you will be prompt again. If you want
+use it after test, backup it by yourself. The CONDITION also can be a
+list, which CAR is a list of names will be used and will be clean
+after test.
+A special variable @code{recursion-start} is available is FINAL-FORM,
+you can use it to clean up recent insertion in BEFORE-TEST-ELEMENTS.
+
+Here is a example to show how to use it:
+@lisp
+(tempo-define-template
+ "sh-if"
+ '("if " (pi "condition: " ("[  ]" . 3)) "; then" > n>
+   p > n>
+   (R "elif " (pi "condition: " ("[  ]" . 3) condition)
+      (& ((condition) (string-match "\\[\\s-*]" condition))
+         (delete-region recursion-start (point)))
+      "; then" > n>
+      p > n>)
+   "else" > n>
+   p n>
+   "fi" > n>))
+@end lisp
+
+Try it by M-x tempo-template-sh-if in sh-mode.
+
+@item snippet
+
+If you want use this only, you can try @code{tempo-snippets.el},
+@code{tempo-x.el} borrow most of functions from there to implement a
+new element instead of new template style.
+
+``snippet'' enable visualize the template field, and can update form when
+editing. The syntax of ``snippet'' is:
+@lisp
+(snippet (S name &optional display insert)
+         (F (vars) forms))
+@end lisp
+
+``S'' insert a field, the first NAME will be the source and other
+field with the same NAME become mirrors. Change the source will also
+change mirrors. DISPLAY is the text to insert to the field, default is
+the `symbol-name' of NAME. INSERT is non-nil means the DISPLAY is the
+default text, you can make change to the text. Otherwise the text will
+be erase after any changes in front of field.
+
+``F'' insert an form. The VARS is a list of NAME used in fields. the
+evaled result will insert into the buffer. When any fields in VARS
+changed, the text of form will change too.
+
+A example will show how to use it easier:
+
+@lisp
+(tempo-define-template
+ "perl-open"
+ '((snippet
+    "open("
+    (S FH "my $fh" t) ", \"" (S op "<") "\", "
+    (S file "$file")
+    ") or die \"Can't "
+    (F (op)
+       (if (string-match ">" op)
+           "create" "open"))
+    " file "
+    (F (file)
+       (replace-regexp-in-string "['\"]?\\(.*\\)['\"]" "\\1" file))
+    ": $!\";"
+    n>)))
+@end lisp
+
+After expand the template, insert string like:
+@verbatim
+open([my $fh], "[<]", [$file]) or die "Can't {open} file {$file}: $!";
+@end verbatim
+
+the text inside ``[]'' indicate as a field, and text inside ``@{@}''
+indicate as a form, the when text inside the field changes, the
+assicated form will update too. For example if you change open mode
+from ``<'' to ``>'', the form ``open'' will change to ``create''. If
+change ``$file'' to ``"file"'' the form will change to ``file'' with
+quote removed.
+@end itemize
 
 @node compile-dwim
 @comment  node-name,  next,  previous,  up
@@ -961,7 +1141,13 @@ the same configuration.
 sort or delete node
 
 @item e
-@kindex e (tree-mode-expand-level)
+@kindex e (tree-mode-toggle-expand)
+@findex tree-mode-toggle-expand
+@code{tree-mode-toggle-expand} - Expand or contract tree at point.
+With prefix argument, expand the tree.
+
+@item E
+@kindex E (tree-mode-expand-level)
 @findex tree-mode-expand-level
 @code{tree-mode-expand-level} - Expand tree to LEVEL. With prefix
 argument 0 or negative, will expand all leaves of the tree.

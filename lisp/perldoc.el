@@ -345,6 +345,12 @@ Don't add \": \" in PROMPT."
                         (get-buffer perldoc-tree-buffer)
                         perldoc-tree-windata)))
 
+(define-widget 'perldoc-directory 'push-button
+  "A perldoc diretory node"
+  :button-face 'perldoc-directory-face
+  :notify 'tree-mode-toggle-expand-node
+  :format "%[%t%]\n")
+
 (defun perldoc-goto-module (module)
   "Move to the node of the MODULE. Expand tree when need."
   (interactive (list (completing-read "Go to module: " perldoc-obarray
@@ -372,16 +378,12 @@ Don't add \": \" in PROMPT."
 
 (defun perldoc-tree-widget ()
   `(tree-widget
-    :node (push-button
-           :tag "Perldoc"
-           :format "%[%t%]\n")
+    :node (perldoc-directory :tag "Perldoc")
     :open t
     ,@(mapcar
        (lambda (cat)
          `(tree-widget
-           :node (push-button
-                  :tag ,(car cat)
-                  :format "%[%t%]\n")
+           :node (perldoc-directory :tag ,(car cat))
            :dynargs ,(cdr cat)))
        '(("Function" . perldoc-function-expand)
          ("Core document" . perldoc-coredoc-expand)
@@ -455,12 +457,12 @@ Don't add \": \" in PROMPT."
 (defun perldoc-module-item (mod)
   (if (perldoc-has-submodp mod)
       `(tree-widget
-        :node (push-button
-               :tag ,mod
-               :format "%[%t%]\n"
-               ,@(if (intern-soft mod perldoc-obarray)
-                    (list :notify 'perldoc-select)
-                   (list :button-face 'perldoc-directory-face)))
+        :node ,(if (intern-soft mod perldoc-obarray)
+                   `(push-button
+                     :tag ,mod
+                     :format "%[%t%]\n"
+                     :notify perldoc-select)
+                 `(perldoc-directory :tag ,mod))
         :dynargs perldoc-sub-module-expand)
     `(push-button
       :tag ,mod

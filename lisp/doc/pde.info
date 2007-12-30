@@ -42,10 +42,12 @@ This is manual for PDE version 0.01
 * pde::                         Integrate other libraries
 * pde-vars::                    Global variables shared
 * pde-project::                 Projects in perl
+* pde-abbv::                    Abbrev for perl
 * pde-util::                    Misc commands
 * template-simple::             New file with template
-* compile-dwim::                Smart compile commands
 * tabbar-x::                    Tabbar for particular buffers
+* tempo-x::                     Additional elements for tempo
+* compile-dwim::                Smart compile commands
 * help-dwim::                   Find documents using help-dwim
 * perldoc::                     Run perldoc using woman
 * perlapi::                     Find document in perlapi
@@ -361,7 +363,7 @@ to perl can require it without load other PDE libaries, and user can
 define one variable for all libaries that use it.
 
 
-File: pde.info,  Node: pde-project,  Next: pde-util,  Prev: pde-vars,  Up: Top
+File: pde.info,  Node: pde-project,  Next: pde-abbv,  Prev: pde-vars,  Up: Top
 
 6 Projects in perl
 ******************
@@ -384,9 +386,38 @@ File: pde.info,  Node: pde-project,  Next: pde-util,  Prev: pde-vars,  Up: Top
      a pm file.
 
 
-File: pde.info,  Node: pde-util,  Next: template-simple,  Prev: pde-project,  Up: Top
+File: pde.info,  Node: pde-abbv,  Next: pde-util,  Prev: pde-project,  Up: Top
 
-7 Misc commands
+7 Abbrev for perl
+*****************
+
+`pde-abbv.el' contains a few abbrevs that I think helpful. You can
+send me you abbrev if you think it is handy. I appreciate for that.
+
+   * newx Create subroutine new for Object module.
+
+   * dumpx expand for Data::Dumper::Dumper.
+
+   * usetk Use Tk
+
+   * exportx Write Exporter tags
+
+   * opend expand for build-in function `opendir'. snippet available
+
+   * openf expand for build-in function `open'. snippet available
+
+   * fromto expand for Encode::from_to, only snippet available
+
+   * usegtk Use Gtk2
+
+   * useenc Use Encode
+
+   * usedump Use Data::Dumper
+
+
+File: pde.info,  Node: pde-util,  Next: template-simple,  Prev: pde-abbv,  Up: Top
+
+8 Misc commands
 ***************
 
 `pde-util' provides several commands that might be useful.
@@ -403,9 +434,9 @@ File: pde.info,  Node: pde-util,  Next: template-simple,  Prev: pde-project,  Up
      parent directory, set this variable to let perl found the module.
 
 
-File: pde.info,  Node: template-simple,  Next: compile-dwim,  Prev: pde-util,  Up: Top
+File: pde.info,  Node: template-simple,  Next: tabbar-x,  Prev: pde-util,  Up: Top
 
-8 New file with template
+9 New file with template
 ************************
 
 template.el is exists, why template-simple? First of all, it is
@@ -540,10 +571,10 @@ template-simple also provide this feature.
     */
 
 
-File: pde.info,  Node: tabbar-x,  Next: help-dwim,  Prev: compile-dwim,  Up: Top
+File: pde.info,  Node: tabbar-x,  Next: tempo-x,  Prev: template-simple,  Up: Top
 
-9 Tabbar for particular buffers
-*******************************
+10 Tabbar for particular buffers
+********************************
 
 Sometimes, make tabbar for particular buffers maybe cool. For example,
 I add tabbar for only perl related buffers, *Perldoc*, *PDE Imenu*,
@@ -554,9 +585,145 @@ exists for this purpose.
      Register the buffer to the one group.
 
 
-File: pde.info,  Node: compile-dwim,  Next: tabbar-x,  Prev: template-simple,  Up: Top
+File: pde.info,  Node: tempo-x,  Next: compile-dwim,  Prev: tabbar-x,  Up: Top
 
-10 Smart compile commands
+11 Additional elements for tempo
+********************************
+
+`tempo.el' is a extensible library for abbrevs. It provide more
+features than `skeleton.el', such as move between marks, names for
+prompt, user elements and so on. `tempo-x.el' provides some commands
+and additional elements that may helpful.
+
+ -- Command: tempo-x-space
+     A simple command to enable expand tempo like abbrev. The command
+     `tempo-space' given by the author of `tempo.el' is not
+     compatiable for abbrev-mode.
+
+ -- Command: tempo-x-rebuild
+     Reinstall new tempo template for all buffer. If you defined a new
+     tempo-template in certain tag-list, you can't use it
+     intermediately.  Call the commands to force build connections
+     for all buffer again.
+
+ -- Function: tempo-x-test-template
+     A macro to test tempo template before define it.
+
+   Here is a list of new elements:
+
+   * pi
+
+   * Pi
+
+     "pi" and "Pi" like standard tempo element "p" except they can
+     have a default value and can be completing read.
+
+      -- Function: tempo-x-insert-prompt prompt &optional default
+               save-name no-insert
+          The beta version of tempo.el also implement new prompt
+          element, but I still an element that can accept default
+          value.  PROMPT can be a string or a list. When it is a
+          string, it is like standard tempo element `p', but you can
+          give a DEFAULT string.  If it is a list, the prompt will be
+          the parameters of `completing-read'. But you should give
+          the default value in DEFAULT not in PROMPT.
+
+          Here is some example:
+               (pi "variable: " "foo" var)
+               (pi ("variable: " ("foo" "bar")) "foo" var)
+
+   * R
+
+     skeleton has some handy elements to control recursive expanding.
+     "R" is such tempo elements to do this job. The syntax of the
+     element is:
+          (R before-test-elements
+             (& condition
+                final-form)
+             after-test-elements)
+
+     First it insert BEFORE-TEST-ELEMENTS to buffer. then test the
+     CONDITION, if the CONDITION is null, eval FINAL-FORM and quit the
+     loop. Otherwise insert AFTER-TEST-ELEMENTS and back to start. The
+     CONDITION can be a name saved in BEFORE-TEST-ELEMENTS, it will
+     automatic clean after test, so you will be prompt again. If you
+     want use it after test, backup it by yourself. The CONDITION
+     also can be a list, which CAR is a list of names will be used
+     and will be clean after test.  A special variable
+     `recursion-start' is available is FINAL-FORM, you can use it to
+     clean up recent insertion in BEFORE-TEST-ELEMENTS.
+
+     Here is a example to show how to use it:
+          (tempo-define-template
+           "sh-if"
+           '("if " (pi "condition: " ("[  ]" . 3)) "; then" > n>
+             p > n>
+             (R "elif " (pi "condition: " ("[  ]" . 3) condition)
+                (& ((condition) (string-match "\\[\\s-*]" condition))
+                   (delete-region recursion-start (point)))
+                "; then" > n>
+                p > n>)
+             "else" > n>
+             p n>
+             "fi" > n>))
+
+     Try it by M-x tempo-template-sh-if in sh-mode.
+
+   * snippet
+
+     If you want use this only, you can try `tempo-snippets.el',
+     `tempo-x.el' borrow most of functions from there to implement a
+     new element instead of new template style.
+
+     "snippet" enable visualize the template field, and can update
+     form when editing. The syntax of "snippet" is:
+          (snippet (S name &optional display insert)
+                   (F (vars) forms))
+
+     "S" insert a field, the first NAME will be the source and other
+     field with the same NAME become mirrors. Change the source will
+     also change mirrors. DISPLAY is the text to insert to the field,
+     default is the `symbol-name' of NAME. INSERT is non-nil means
+     the DISPLAY is the default text, you can make change to the
+     text. Otherwise the text will be erase after any changes in
+     front of field.
+
+     "F" insert an form. The VARS is a list of NAME used in fields.
+     the evaled result will insert into the buffer. When any fields
+     in VARS changed, the text of form will change too.
+
+     A example will show how to use it easier:
+
+          (tempo-define-template
+           "perl-open"
+           '((snippet
+              "open("
+              (S FH "my $fh" t) ", \"" (S op "<") "\", "
+              (S file "$file")
+              ") or die \"Can't "
+              (F (op)
+                 (if (string-match ">" op)
+                     "create" "open"))
+              " file "
+              (F (file)
+                 (replace-regexp-in-string "['\"]?\\(.*\\)['\"]" "\\1" file))
+              ": $!\";"
+              n>)))
+
+     After expand the template, insert string like:
+     open([my $fh], "[<]", [$file]) or die "Can't {open} file {$file}: $!";
+
+     the text inside "[]" indicate as a field, and text inside "{}"
+     indicate as a form, the when text inside the field changes, the
+     assicated form will update too. For example if you change open
+     mode from "<" to ">", the form "open" will change to "create". If
+     change "$file" to ""file"" the form will change to "file" with
+     quote removed.
+
+
+File: pde.info,  Node: compile-dwim,  Next: help-dwim,  Prev: tempo-x,  Up: Top
+
+12 Smart compile commands
 *************************
 
 cperl-mode recommend using mode-compile, but I don't like
@@ -599,9 +766,9 @@ I like dwim).
      mode-hook for certain files.
 
 
-File: pde.info,  Node: help-dwim,  Next: perldoc,  Prev: tabbar-x,  Up: Top
+File: pde.info,  Node: help-dwim,  Next: perldoc,  Prev: compile-dwim,  Up: Top
 
-11 Find documents using help-dwim
+13 Find documents using help-dwim
 *********************************
 
 A big obstacle for novice to used to emacs is that there are so many
@@ -639,7 +806,7 @@ can add more if you follow the rules.
 
 File: pde.info,  Node: perldoc,  Next: perlapi,  Prev: help-dwim,  Up: Top
 
-12 Run perldoc using woman
+14 Run perldoc using woman
 **************************
 
 I like "woman"(that is WithOut MAN). perldoc.el make it possible to
@@ -672,7 +839,7 @@ The cache can be update automaticly. It is configured in pde-load.
 
 File: pde.info,  Node: perlapi,  Next: windata,  Prev: perldoc,  Up: Top
 
-13 Find document in perlapi
+15 Find document in perlapi
 ***************************
 
 This is orignal a demo for help-dwim. Useful if you are writing XS.
@@ -685,7 +852,7 @@ This is orignal a demo for help-dwim. Useful if you are writing XS.
 
 File: pde.info,  Node: windata,  Next: tree-mode,  Prev: perlapi,  Up: Top
 
-14 Window configuration to list
+16 Window configuration to list
 *******************************
 
 Emacs can save window configuration when it is running. The
@@ -813,7 +980,7 @@ same configuration.
 
 File: pde.info,  Node: tree-mode,  Next: imenu-tree,  Prev: windata,  Up: Top
 
-15 More commands on tree-widget
+17 More commands on tree-widget
 *******************************
 
 `tree-mode.el' provide more commands to tree-widget.
@@ -841,6 +1008,10 @@ File: pde.info,  Node: tree-mode,  Next: imenu-tree,  Prev: windata,  Up: Top
      sort or delete node
 
 `e'
+     `tree-mode-toggle-expand' - Expand or contract tree at point.
+     With prefix argument, expand the tree.
+
+`E'
      `tree-mode-expand-level' - Expand tree to LEVEL. With prefix
      argument 0 or negative, will expand all leaves of the tree.
 
@@ -866,7 +1037,7 @@ node.
 
 File: pde.info,  Node: imenu-tree,  Next: tags-tree,  Prev: tree-mode,  Up: Top
 
-16 Tree view for imenu
+18 Tree view for imenu
 **********************
 
 imenu provide an excellent code navigating method. `imenu-tree.el'
@@ -899,7 +1070,7 @@ make the tags visualized using tree-widget.
 
 File: pde.info,  Node: tags-tree,  Next: perltidy,  Prev: imenu-tree,  Up: Top
 
-17 Tree view of TAGS
+19 Tree view of TAGS
 ********************
 
 `tags-tree.el' read TAGS file and display them using tree-widget.
@@ -948,7 +1119,7 @@ File: pde.info,  Node: tags-tree,  Next: perltidy,  Prev: imenu-tree,  Up: Top
 
 File: pde.info,  Node: perltidy,  Next: perldb-ui,  Prev: tags-tree,  Up: Top
 
-18 Calling perltidy
+20 Calling perltidy
 *******************
 
 A collection of commands to call perltidy on buffer or region.  *Note
@@ -957,7 +1128,7 @@ pde::.
 
 File: pde.info,  Node: perldb-ui,  Next: inf-perl,  Prev: perltidy,  Up: Top
 
-19 Perl Debugger
+21 Perl Debugger
 ****************
 
 perldb provide the minimal debugger interface in emacs.
@@ -1041,7 +1212,7 @@ want control debugger in source buffer, maybe turn on
 
 File: pde.info,  Node: inf-perl,  Next: Function Index,  Prev: perldb-ui,  Up: Top
 
-20 Interactive perl shell
+22 Interactive perl shell
 *************************
 
 An interactive shell is easier to prove some simple idea or check a
@@ -1137,18 +1308,23 @@ Function Index
 * template-simple-expand:                template-simple.   (line  40)
 * template-simple-expand-template:       template-simple.   (line  35)
 * template-simple-update-header:         template-simple.   (line 125)
-* tree-mode-collapse-other-except:       tree-mode.         (line  41)
-* tree-mode-delete-tree:                 tree-mode.         (line  45)
-* tree-mode-expand-level:                tree-mode.         (line  31)
+* tempo-x-insert-prompt:                 tempo-x.           (line  36)
+* tempo-x-rebuild:                       tempo-x.           (line  17)
+* tempo-x-space:                         tempo-x.           (line  12)
+* tempo-x-test-template:                 tempo-x.           (line  23)
+* tree-mode-collapse-other-except:       tree-mode.         (line  45)
+* tree-mode-delete-tree:                 tree-mode.         (line  49)
+* tree-mode-expand-level:                tree-mode.         (line  35)
 * tree-mode-goto-parent:                 tree-mode.         (line  21)
 * tree-mode-goto-root:                   tree-mode.         (line  24)
-* tree-mode-keep-match:                  tree-mode.         (line  38)
+* tree-mode-keep-match:                  tree-mode.         (line  42)
 * tree-mode-next-node:                   tree-mode.         (line   9)
 * tree-mode-next-sib:                    tree-mode.         (line  15)
 * tree-mode-previous-node:               tree-mode.         (line  12)
 * tree-mode-previous-sib:                tree-mode.         (line  18)
 * tree-mode-reflesh:                     tree-mode.         (line  27)
-* tree-mode-sort-by-tag:                 tree-mode.         (line  35)
+* tree-mode-sort-by-tag:                 tree-mode.         (line  39)
+* tree-mode-toggle-expand:               tree-mode.         (line  31)
 * windata-current-winconf:               windata.           (line  11)
 * windata-display-buffer:                windata.           (line  40)
 * windata-name-winconf:                  windata.           (line  33)
@@ -1208,8 +1384,8 @@ Keybinding Index
  [index ]
 * Menu:
 
-* ! (tree-mode-collapse-other-except):   tree-mode.         (line  41)
-* / (tree-mode-keep-match):              tree-mode.         (line  38)
+* ! (tree-mode-collapse-other-except):   tree-mode.         (line  45)
+* / (tree-mode-keep-match):              tree-mode.         (line  42)
 * b (gud-break):                         perldb-ui.         (line  57)
 * c (gud-cont):                          perldb-ui.         (line  54)
 * C-b (perltidy-buffer):                 pde.               (line  73)
@@ -1238,8 +1414,9 @@ Keybinding Index
 * C-y (inf-perl-switch-to-perl):         pde.               (line 117)
 * C-z (inf-perl-switch-to-end-perl):     pde.               (line 120)
 * d (gud-remove):                        perldb-ui.         (line  60)
-* D (tree-mode-delete-tree):             tree-mode.         (line  45)
-* e (tree-mode-expand-level):            tree-mode.         (line  31)
+* D (tree-mode-delete-tree):             tree-mode.         (line  49)
+* E (tree-mode-expand-level):            tree-mode.         (line  35)
+* e (tree-mode-toggle-expand):           tree-mode.         (line  31)
 * G (tags-tree-update-file):             tags-tree.         (line  41)
 * g (tree-mode-reflesh):                 tree-mode.         (line  27)
 * j (tree-mode-next-sib):                tree-mode.         (line  15)
@@ -1254,7 +1431,7 @@ Keybinding Index
 * r (gud-return):                        perldb-ui.         (line  51)
 * r (tree-mode-goto-root):               tree-mode.         (line  24)
 * s (gud-step):                          perldb-ui.         (line  45)
-* s (tree-mode-sort-by-tag):             tree-mode.         (line  35)
+* s (tree-mode-sort-by-tag):             tree-mode.         (line  39)
 * SPC (gud-next):                        perldb-ui.         (line  42)
 * u (gud-until):                         perldb-ui.         (line  48)
 * u (tree-mode-goto-parent):             tree-mode.         (line  21)
@@ -1264,28 +1441,30 @@ Keybinding Index
 
 Tag Table:
 Node: Top708
-Node: Introduction2462
-Node: Installation3119
-Node: pde-load4072
-Node: pde5970
-Node: pde-vars10823
-Node: pde-project11143
-Node: pde-util11861
-Node: template-simple12492
-Node: tabbar-x17629
-Node: compile-dwim18103
-Node: help-dwim19879
-Node: perldoc21472
-Node: perlapi22761
-Node: windata23161
-Node: tree-mode29083
-Node: imenu-tree30394
-Node: tags-tree31475
-Node: perltidy33009
-Node: perldb-ui33209
-Node: inf-perl35517
-Node: Function Index36624
-Node: Variable Index42093
-Node: Keybinding Index44659
+Node: Introduction2572
+Node: Installation3229
+Node: pde-load4182
+Node: pde6080
+Node: pde-vars10933
+Node: pde-project11253
+Node: pde-abbv11971
+Node: pde-util12654
+Node: template-simple13282
+Node: tabbar-x18415
+Node: tempo-x18892
+Node: compile-dwim24253
+Node: help-dwim26022
+Node: perldoc27619
+Node: perlapi28908
+Node: windata29308
+Node: tree-mode35230
+Node: imenu-tree36657
+Node: tags-tree37738
+Node: perltidy39272
+Node: perldb-ui39472
+Node: inf-perl41780
+Node: Function Index42887
+Node: Variable Index48711
+Node: Keybinding Index51277
 
 End Tag Table

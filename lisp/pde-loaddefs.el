@@ -34,8 +34,8 @@ Use `help-dwim-customize-type' for active or deactive type globally.
 
 ;;;***
 
-;;;### (autoloads (imenu-tree) "imenu-tree" "imenu-tree.el" (18289
-;;;;;;  56221))
+;;;### (autoloads (imenu-tree) "imenu-tree" "imenu-tree.el" (18293
+;;;;;;  9245))
 ;;; Generated autoloads from imenu-tree.el
 
 (autoload (quote imenu-tree) "imenu-tree" "\
@@ -61,7 +61,7 @@ If there is a process already running in `*perl*', switch to that buffer.
 ;;;***
 
 ;;;### (autoloads (pde-generate-loaddefs pde-list-core-modules pde-list-module-shadows)
-;;;;;;  "pde-util" "pde-util.el" (18290 57210))
+;;;;;;  "pde-util" "pde-util.el" (18295 20846))
 ;;; Generated autoloads from pde-util.el
 
 (autoload (quote pde-list-module-shadows) "pde-util" "\
@@ -77,19 +77,24 @@ Display a list of core modules.
 (autoload (quote pde-generate-loaddefs) "pde-util" "\
 Create pde-loaddefs.el
 
-\(fn)" t nil)
+\(fn LISP-DIR)" t nil)
 
 ;;;***
 
 ;;;### (autoloads (pde-perl-mode-hook pde-indent-dwim pde-ido-imenu-completion
-;;;;;;  pde-compilation-buffer-name pde-tabbar-register) "pde" "pde.el"
-;;;;;;  (18291 17836))
+;;;;;;  pde-compilation-buffer-name pde-ffap-locate pde-tabbar-register)
+;;;;;;  "pde" "pde.el" (18295 20593))
 ;;; Generated autoloads from pde.el
 
 (autoload (quote pde-tabbar-register) "pde" "\
 Add tabbar and register current buffer to group Perl.
 
 \(fn)" nil nil)
+
+(autoload (quote pde-ffap-locate) "pde" "\
+Return cperl module for ffap.
+
+\(fn NAME &optional FORCE)" nil nil)
 
 (autoload (quote pde-compilation-buffer-name) "pde" "\
 Enable running multiple compilations.
@@ -131,8 +136,8 @@ and source-file directory for your debugger.
 
 ;;;***
 
-;;;### (autoloads (perldoc-tree perldoc) "perldoc" "perldoc.el" (18291
-;;;;;;  2543))
+;;;### (autoloads (perldoc-tree perldoc) "perldoc" "perldoc.el" (18293
+;;;;;;  53265))
 ;;; Generated autoloads from perldoc.el
 
 (autoload (quote perldoc) "perldoc" "\
@@ -181,73 +186,6 @@ perltidy for whole buffer.
 
 ;;;***
 
-;;;### (autoloads (tabbar-local-mode tabbar-mode tabbar-forward-tab
-;;;;;;  tabbar-backward-tab tabbar-forward-group tabbar-backward-group
-;;;;;;  tabbar-forward tabbar-backward) "tabbar" "tabbar.el" (16094
-;;;;;;  64565))
-;;; Generated autoloads from tabbar.el
-
-(autoload (quote tabbar-backward) "tabbar" "\
-Select the previous available tab.
-Depend on the setting of the option `tabbar-cycling-scope'.
-
-\(fn)" t nil)
-
-(autoload (quote tabbar-forward) "tabbar" "\
-Select the next available tab.
-Depend on the setting of the option `tabbar-cycling-scope'.
-
-\(fn)" t nil)
-
-(autoload (quote tabbar-backward-group) "tabbar" "\
-Go to selected tab in the previous available group.
-
-\(fn)" t nil)
-
-(autoload (quote tabbar-forward-group) "tabbar" "\
-Go to selected tab in the next available group.
-
-\(fn)" t nil)
-
-(autoload (quote tabbar-backward-tab) "tabbar" "\
-Select the previous visible tab.
-
-\(fn)" t nil)
-
-(autoload (quote tabbar-forward-tab) "tabbar" "\
-Select the next visible tab.
-
-\(fn)" t nil)
-
-(defvar tabbar-mode nil "\
-Non-nil if Tabbar mode is enabled.
-See the command `tabbar-mode' for a description of this minor-mode.
-Setting this variable directly does not take effect;
-either customize it (see the info node `Easy Customization')
-or call the function `tabbar-mode'.")
-
-(custom-autoload (quote tabbar-mode) "tabbar" nil)
-
-(autoload (quote tabbar-mode) "tabbar" "\
-Toggle display of a tab bar in the header line.
-With prefix argument ARG, turn on if positive, otherwise off.
-Returns non-nil if the new state is enabled.
-
-\(fn &optional ARG)" t nil)
-
-(autoload (quote tabbar-local-mode) "tabbar" "\
-Toggle local display of the tab bar.
-With prefix argument ARG, turn on if positive, otherwise off.
-Returns non-nil if the new state is enabled.
-When on and tab bar global mode is on, if a buffer local value of
-`header-line-format' exists, it is saved, then the local header line
-is killed to show the tab bar.  When off, the saved local value of the
-header line is restored, hiding the tab bar.
-
-\(fn &optional ARG)" t nil)
-
-;;;***
-
 ;;;### (autoloads (tags-tree) "tags-tree" "tags-tree.el" (18290 6069))
 ;;; Generated autoloads from tags-tree.el
 
@@ -259,7 +197,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (template-simple-expand template-simple-expand-template)
-;;;;;;  "template-simple" "template-simple.el" (18291 1852))
+;;;;;;  "template-simple" "template-simple.el" (18292 61898))
 ;;; Generated autoloads from template-simple.el
 
 (define-template-expander skeleton template-skeleton-alist (skeleton-insert (cons nil template)))
@@ -282,8 +220,18 @@ Use `template-expand-function' to expand the parsed template.
 
 ;;;***
 
-;;;### (autoloads (tree-minor-mode) "tree-mode" "tree-mode.el" (18289
-;;;;;;  37621))
+;;;### (autoloads (tempo-x-space) "tempo-x" "tempo-x.el" (18295 10614))
+;;; Generated autoloads from tempo-x.el
+
+(autoload (quote tempo-x-space) "tempo-x" "\
+Expand tempo if complete in `tempo-local-tags' or insert space.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (tree-minor-mode) "tree-mode" "tree-mode.el" (18295
+;;;;;;  13961))
 ;;; Generated autoloads from tree-mode.el
 
 (autoload (quote tree-minor-mode) "tree-mode" "\

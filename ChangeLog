@@ -1,4 +1,20 @@
+2007-12-30  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-load.el ("ffap"): let pde-ffap-locate handle everywhere
+
+	* lisp/tree-mode.el (tree-mode-toggle-expand-node): A notify
+	function to toggle expanding tree
+
+	* lisp/pde-abbv.el: Add pde-abbv.el
+
+	* lisp/tempo-x.el: Add tempo-x.el
+
 2007-12-29  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/perldoc.el (perldoc-tree-widget): click on toplevel button
+	toggle expand node.
+
+	* lisp/contrib/tabbar.el: Move tabbar to contrib directory
 
 	* lisp/perldoc.el (perldoc-tree-theme): Add option for
 	perldoc-tree theme

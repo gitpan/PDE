@@ -35,6 +35,8 @@
   (require 'cl))
 (require 'pde-vars)
 (require 'template-simple)
+(add-to-list 'load-path
+             (concat (file-name-as-directory pde-load-path) "contrib"))
 (add-to-list 'template-directory-list
              (expand-file-name "templates" pde-load-path))
 
@@ -67,11 +69,14 @@
        "\\(ftp\\|https?\\|telnet\\|gopher\\|www\\|wais\\)://" ; needs host
        "\\)[^:]"             ; require one more character that not ":"
        ))
+(eval-after-load "ffap"
+  '(add-to-list 'ffap-alist '("." . pde-ffap-locate)))
 (add-hook 'cperl-mode-hook 'pde-perl-mode-hook)
 
 ;; Extra setting that run only once
 (when pde-extra-setting
   (require 'pde-patch)
+  (require 'pde-abbv)
   ;; set it before load cperl-mode
   (setq cperl-invalid-face nil)
   (setq cperl-lazy-help-time 2)
@@ -124,6 +129,7 @@
   (global-set-key "\C-cv" 'imenu-tree)
   (global-set-key "\C-cj" 'ffap)
   (global-set-key "\C-ch" 'help-dwim)
+  (global-set-key " " 'tempo-x-space)
   )
 
 (provide 'pde-load)

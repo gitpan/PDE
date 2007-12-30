@@ -5,5 +5,4 @@ Here is a list of feature I might implement:
  array and hash in watch buffer, pretty display for stack and
  breakpoint, display global variables and functions
  - Completions in interactive shell
- - Add convenient code snippets
  

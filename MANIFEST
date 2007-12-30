@@ -3,6 +3,7 @@ ChangeLog
 lib/PDE.pm
 lib/PDE/Util.pm
 lisp/compile-dwim.el
+lisp/contrib/tabbar.el
 lisp/doc/css/asciidoc.css
 lisp/doc/images/ido-1.png
 lisp/doc/images/ido-2.png
@@ -29,6 +30,7 @@ lisp/doc/pde/Installation.html
 lisp/doc/pde/Introduction.html
 lisp/doc/pde/Keybinding-Index.html
 lisp/doc/pde/pde.html
+lisp/doc/pde/pde_002dabbv.html
 lisp/doc/pde/pde_002dload.html
 lisp/doc/pde/pde_002dproject.html
 lisp/doc/pde/pde_002dutil.html
@@ -40,6 +42,7 @@ lisp/doc/pde/perltidy.html
 lisp/doc/pde/tabbar_002dx.html
 lisp/doc/pde/tags_002dtree.html
 lisp/doc/pde/template_002dsimple.html
+lisp/doc/pde/tempo_002dx.html
 lisp/doc/pde/tree_002dmode.html
 lisp/doc/pde/Variable-Index.html
 lisp/doc/pde/windata.html
@@ -48,6 +51,7 @@ lisp/doc/QuickStartEn.html
 lisp/help-dwim.el
 lisp/imenu-tree.el
 lisp/inf-perl.el
+lisp/pde-abbv.el
 lisp/pde-load.el
 lisp/pde-loaddefs.el
 lisp/pde-patch.el
@@ -60,7 +64,6 @@ lisp/perldb-ui.el
 lisp/perldoc.el
 lisp/perltidy.el
 lisp/tabbar-x.el
-lisp/tabbar.el
 lisp/tags-tree.el
 lisp/template-simple.el
 lisp/templates/TEMPLATE.c.tpl
@@ -76,6 +79,7 @@ lisp/templates/TEMPLATE.pod.tpl
 lisp/templates/TEMPLATE.t.tpl
 lisp/templates/TEMPLATE.texi
 lisp/templates/TEMPLATE.texinfo
+lisp/tempo-x.el
 lisp/tools/gtksh.pl
 lisp/tools/myetags
 lisp/tools/perldoc-cache.pl

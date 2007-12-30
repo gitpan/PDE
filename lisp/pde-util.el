@@ -90,13 +90,13 @@
 
 (autoload 'generate-file-autoloads "autoload")
 ;;;###autoload 
-(defun pde-generate-loaddefs ()
+(defun pde-generate-loaddefs (lisp-dir)
   "Create pde-loaddefs.el"
-  (interactive)
+  (interactive "Dlisp directory: ")
   (with-temp-buffer
-    (dolist (file (directory-files pde-load-path t "\\.el$"))
+    (dolist (file (directory-files lisp-dir t "\\.el$"))
       (generate-file-autoloads file))
     (write-region (point-min) (point-max)
-                  (concat pde-load-path "/" "pde-loaddefs.el"))))
+                  (concat lisp-dir "/" "pde-loaddefs.el"))))
 (provide 'pde-util)
 ;;; pde-util.el ends here

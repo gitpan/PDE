@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp; template-expand-function: template-skeleton-expand -*-
+;; -*- mode: emacs-lisp; template-expand-function: template-tempo-expand -*-
 ;;; (>>>FILE<<<) --- (>>>DESC<<<)
 
 ;; Copyright (C) (>>>YEAR<<<) Free Software Foundation, Inc.
@@ -8,13 +8,17 @@
 ;; Created: (>>>CDATE<<<)
 ;; Version: 0.01
 ;; Keywords: (>>>
-'(require 'finder)
-((let ((minibuffer-help-form
+(progn
+  (require 'finder)
+  (setq minibuffer-help-form
         (mapconcat (lambda (x) (format "%10s:  %s" (car x) (cdr x)))
                    finder-known-keywords
-                   "\n")))
-   (completing-read "Keyword, C-h: " finder-known-keywords nil t))
- str ", ") & -2<<<)
+                   "\n"))
+  nil)
+(R (pi ("Keyword, C-h: " finder-known-keywords nil t) nil keyword)
+   (& keyword (delete-backward-char 2))
+   ", ")
+(setq minibuffer-help-form nil)<<<)
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
