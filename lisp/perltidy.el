@@ -85,8 +85,13 @@
 (defun perltidy-region (beg end)
   "Tidy perl code in the region."
   (interactive "r")
+  (or (get 'perltidy-program 'has-perltidy)
+      (if (executable-find perltidy-program)
+          (put 'perltidy-program 'has-perltidy t)
+        (error "Seem perltidy is not installed")))
   (perltidy-save-point
     (call-process-region beg end perltidy-program t t)))
+
 ;;;###autoload 
 (defun perltidy-buffer ()
   "Call perltidy for whole buffer."

@@ -80,13 +80,20 @@
                           (progn (forward-line 1)
                                  (1- (point)))
                           'action (lambda (but)
-                                    (perldoc (intern
-                                              (button-label but)
-                                              perldoc-obarray)))))
+                                    (perldoc (intern (button-label but) perldoc-obarray) t))))
       (goto-char (point-min))
       (setq buffer-read-only t)
       (view-mode t)
       (message "Push button to show the pod."))))
+
+;;;###autoload 
+(defun pde-search-cpan (mod)
+  "Search anything in CPAN."
+  (interactive
+   (list (perldoc-read-module "Search CPAN")))
+  (when (> (length mod) 0)
+    (browse-url (format "http://search.cpan.org/search?query=%s&mode=all"
+                        (url-hexify-string mod)))))
 
 (autoload 'generate-file-autoloads "autoload")
 ;;;###autoload 

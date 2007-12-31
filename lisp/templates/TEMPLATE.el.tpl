@@ -46,6 +46,7 @@
 (eval-when-compile
   (require 'cl))
 
+(>>>POINT<<<)
 
 (provide '(>>>FILE_SANS<<<))
 ;;; (>>>FILE<<<) ends here

@@ -129,6 +129,8 @@
   (global-set-key "\C-cv" 'imenu-tree)
   (global-set-key "\C-cj" 'ffap)
   (global-set-key "\C-ch" 'help-dwim)
+  (global-set-key "\C-xan" 'tempo-forward-mark)
+  (global-set-key "\C-xap" 'tempo-backward-mark)
   (global-set-key " " 'tempo-x-space)
   )
 

@@ -1,5 +1,5 @@
-/* Last modified Time-stamp: <Ye Wenbin 2007-01-14 22:29:15>
- * @(#)TEMPLATE.c.tpl
+/* Last modified Time-stamp: <Ye Wenbin 2007-12-30 16:29:58>
+ * @(#)(>>>FILE<<<)
  */
 
 #include <stdio.h>

@@ -74,7 +74,7 @@
                (null (help-dwim-obarray (assoc (car extra) help-dwim-type-alist))))
       (eval (cdr extra)))))
 
-(defcustom help-dwim-active-types '(elisp-function)
+(defcustom help-dwim-active-types '(elisp-function elisp-variable)
   "*Activated types.
 The order of this list is important for the default behavior of
 `help-dwim'."

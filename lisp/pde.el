@@ -52,6 +52,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-e" 'cperl-toggle-electric)
     (define-key map "\C-j" 'cperl-linefeed)
+    (define-key map "\C-k" 'cperl-toggle-abbrev)
     (define-key map "\C-n" 'cperl-narrow-to-here-doc)
     (define-key map "\C-p" 'cperl-pod-spell)
     (define-key map "\C-t" 'cperl-invert-if-unless)
@@ -157,12 +158,12 @@
     ;; remove finished buffer
     (mapc
      (lambda (buf)
-       (when (string-match "^\*compilation" (buffer-name buf))
+       (when (string-match (concat "^\*" (regexp-quote mode)) (buffer-name buf))
          (if (get-buffer-process buf)
              (setq bufs (cons buf bufs))
            (kill-buffer buf))))
      (buffer-list))
-    (concat "*compilation"
+    (concat "*" mode
             (if (> (length bufs) 1)
                 (format "<%d>" (length bufs)))
             "*")))
@@ -255,6 +256,7 @@ With prefix argument, reflesh the formated manpage."
                                nil "-n" mod)
           (with-current-buffer buf
             (woman-process-buffer)
+            (goto-char (point-min))
             (setq buffer-read-only t)))
         (display-buffer buf))
     (message "No pod found in current buffer")))
@@ -284,6 +286,7 @@ With prefix argument, reflesh the formated manpage."
         (cons "PDE"
               '(["Check syntax" compile-dwim-compile t]
                 ["Run" compile-dwim-run t]
+                ["Critic" perlcritic t]
                 ["Debugger" perldb-ui t]
                 ["Toggle Flymake" flymake-mode t]
                 "-----"
@@ -302,6 +305,7 @@ With prefix argument, reflesh the formated manpage."
       (define-key map pde-inf-perl-prefix pde-inf-perl-map)
       (define-key map pde-view-prefix pde-view-map)
       (define-key map "\C-c\C-f" 'flymake-mode)
+      (define-key map "\C-c\C-k" 'perlcritic)
       (define-key map "\C-c\C-z" 'run-perl)
       (define-key map "\C-c\C-d" 'perldb-ui))
     ;; with help-dwim, show prefix key bindings is more helpful

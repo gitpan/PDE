@@ -57,8 +57,15 @@
 (defvar perldoc-buffer-format "*WoMan Perldoc %S*"
   "*Buffer name for perldoc buffer.")
 
-(defvar perldoc-module-chars "0-9a-zA-Z_:."
+(defvar perldoc-module-chars "0-9a-zA-Z_:"
   "*Characters may occur in perl module name.")
+
+(defvar perldoc-auto-encoding t
+  "*Non-nil means handler encoding by emacs.")
+
+(defvar perldoc-pod-encoding-list
+  '(("perltw" . big5))
+  "*Encoding for pods")
 
 (defvar perldoc-obarray nil
   "All perl modules name and functions.
@@ -149,7 +156,7 @@ With prefix arguments force cache update."
       (perldoc-build-obarray))))
 
 ;;;###autoload 
-(defun perldoc (symbol)
+(defun perldoc (symbol &optional modulep)
   "Display perldoc using woman.
 The SYMBOL can be a module name or a function. If the module and
 function is the same, add \".pod\" for the module name. For example,
@@ -157,12 +164,23 @@ function is the same, add \".pod\" for the module name. For example,
   (interactive
    (list
     (intern (perldoc-read-module "Perldoc" t) perldoc-obarray)))
+  ;; if sure it is module
+  (and modulep (boundp symbol)
+       (setq symbol (intern-soft (format "%s.pod" symbol) perldoc-obarray)))
   (let ((buf (format perldoc-buffer-format symbol))
-        (name (symbol-name symbol)))
+        (name (symbol-name symbol))
+        (old-coding default-process-coding-system)
+        (default-process-coding-system default-process-coding-system)
+        (process-coding-system-alist process-coding-system-alist)
+        encoding)
     (if (buffer-live-p (get-buffer buf))
         (display-buffer buf)
       (when symbol
         (with-current-buffer (get-buffer-create buf)
+          (when perldoc-auto-encoding
+            (setq default-process-coding-system
+                  (cons 'raw-text (cdr default-process-coding-system))
+                  process-coding-system-alist nil))
           (if (boundp symbol)           ; function
               (progn
                 (call-process pde-perldoc-program nil t nil "-u" "-f" name)
@@ -173,9 +191,25 @@ function is the same, add \".pod\" for the module name. For example,
             (if (string-match "\\.pod$" name)
                 (setq name (replace-match "" nil nil name)))
             (call-process pde-perldoc-program  nil t nil "-u" name))
+          (goto-char (point-min))
+          (when (re-search-forward "^=encoding\\s-+\\(\\S-+\\)" nil t)
+            (setq encoding (intern-soft (match-string 1)))
+            ;; pod2man can't understand =encoding
+            (delete-region (match-beginning 0) (match-end 0)))
+          ;; detect encoding by emacs
+          (when perldoc-auto-encoding
+            (let ((detect-coding (detect-coding-region (point-min) (min (point-max) 10000) t)))
+              (when (or (null encoding) (not (coding-system-p encoding)))
+                (setq encoding
+                      ;; as far as I known, perltw can't detect encoding
+                      (or (cdr (assoc name perldoc-pod-encoding-list))
+                          detect-coding)))
+              ;; choose the eol-type from detected encoding
+              (setq encoding (merge-coding-systems encoding detect-coding)))
+            (decode-coding-region (point-min) (point-max) encoding)
+            (setq default-process-coding-system old-coding))
           (call-process-region (point-min) (point-max)
-                               perldoc-pod2man t t nil
-                               "-n" name)
+                               perldoc-pod2man t t nil "-n" name)
           (condition-case nil
               (woman-process-buffer)
             (error
@@ -183,6 +217,7 @@ function is the same, add \".pod\" for the module name. For example,
              (erase-buffer)
              (apply 'call-process
                     `(,pde-perldoc-program nil t nil ,@(if (boundp symbol) "-f") ,name))))
+          (goto-char (point-min))
           (display-buffer (current-buffer)))))))
 
 (defun perldoc-module-ap ()
@@ -195,6 +230,10 @@ function is the same, add \".pod\" for the module name. For example,
                  (progn (skip-chars-forward chars) (point)))))
          (def (intern-soft mod perldoc-obarray))
          case-fold-search)
+    ;; if it is a Package::sub, remove the sub
+    (unless def
+      (setq mod (replace-regexp-in-string "::[_a-z][^:]*$" "" mod))
+      (setq def (intern-soft mod perldoc-obarray)))
     (and def
          (not (boundp def))               ; not function
          (not (string-match "^perl" mod)) ; not core module
@@ -203,8 +242,8 @@ function is the same, add \".pod\" for the module name. For example,
 (defsubst perldoc-locate-module (module)
   "Find location of the module"
   (locate-file 
-   (concat (replace-regexp-in-string "::" "/" module) ".pm")
-   pde-perl-inc))
+   (replace-regexp-in-string "::" "/" module)
+   pde-perl-inc '(".pm" ".pod")))
 
 (defun perldoc-read-module (prompt &optional require-match init)
   "Read perl module.
@@ -484,9 +523,7 @@ Don't add \": \" in PROMPT."
     (setq sym (intern-soft name perldoc-obarray))
     (if (not sym)
         (message "No perldoc found for %s" name)
-      (and (not funcp) (boundp sym)
-           (setq sym (intern-soft (concat name ".pod") perldoc-obarray)))
-      (perldoc sym))))
+      (perldoc sym (not funcp)))))
 ;;}}}
 
 (perldoc-init)

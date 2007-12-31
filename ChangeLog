@@ -1,4 +1,23 @@
+2007-12-31  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/perlcritic.el: add perlcritic.el
+
+	* lisp/perltidy.el (perltidy-region): check perltidy
+
+	* lisp/pde.el (pde-compilation-buffer-name): Use mode name to
+	create buffer.
+
 2007-12-30  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-util.el (pde-search-cpan): New command
+
+	* lisp/perldoc.el (perldoc): add a parameter for module convert
+
+	* lisp/pde-util.el (pde-list-core-modules): fix for view "open"
+
+	* lisp/perldoc.el (perldoc-module-ap): Handle name like package::sub.
+	(perldoc-locate-module): locate pod also.
+	(perldoc): support for encoding
 
 	* lisp/pde-load.el ("ffap"): let pde-ffap-locate handle everywhere
 

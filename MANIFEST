@@ -60,6 +60,7 @@ lisp/pde-util.el
 lisp/pde-vars.el
 lisp/pde.el
 lisp/perlapi.el
+lisp/perlcritic.el
 lisp/perldb-ui.el
 lisp/perldoc.el
 lisp/perltidy.el
