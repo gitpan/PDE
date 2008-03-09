@@ -37,7 +37,8 @@
 
 (defgroup perlcritic nil
   "Call perlcritic"
-  :group 'tools)
+  :group 'tools
+  :group 'pde)
 
 (defcustom perlcritic-program "perlcritic"
   "The perlcritic program used by `perlcritic'."
@@ -49,7 +50,10 @@
 If value is nil, use -noprofile,
 If value is t, use the default profile .perlcriticrc,
 If non-nil, and the profile exists, use the profile."
-  :type 'string
+  :type '(string :match (lambda (wid value)
+                          (or (stringp value)
+                              (eq value nil)
+                              (eq value t))))
   :group 'perlcritic)
 
 (defcustom perlcritic-severity nil
@@ -73,15 +77,16 @@ in their .perlcriticrc file."
 If the -severity option is not explicitly given, the -top option
 implies that the minimum severity level is 1. Users can redefine
 the severity for any Policy in their .perlcriticrc file."
-  :type 'integer
+  :type '(integer :match (lambda (wid value)
+                           (or (integerp value) (null value))))
   :group 'perlcritic)
 
-(defcustom perlcritic-include nil
+(defcustom perlcritic-include ""
   "Directs \"perlcritic\" to apply additional Policies that match the regex \"/PATTERN/imx\"."
   :type 'string
   :group 'perlcritic)
 
-(defcustom perlcritic-exclude nil
+(defcustom perlcritic-exclude ""
   "Directs \"perlcritic\" to not apply any Policy that matches the regex
 \"/PATTERN/imx\"."
   :type 'string
@@ -98,7 +103,10 @@ option in your .perlcriticrc file."
   "Sets the numeric verbosity level or format for reporting violations.
 Please do use the verbose level give by perlcritic, otherwise you
 should setup compilation error regexp by yourself."
-  :type 'integer
+  :type '(integer :match (lambda (wid value)
+                           (or (and (integerp value)
+                                    (> value 0) (< value 12))
+                               (null value))))
   :group 'perlcritic)
 
 (defvar perlcritic-used-verbose
@@ -119,19 +127,17 @@ Set the verbose you are not used to nil to avoid add them to
     `((perlcritic-v1-2 ,(concat "^" file ":\\(?: (\\)?" line ":" col)
                        1 2 3)
       (perlcritic-v3 ,(concat "at " file " line " line) 1 2)
-      (perlcritic-v4-8-10 ,(concat "^\\(?:\\sw+[^:]\\|\\[\\S-+\\)\\s-+"
+      (perlcritic-v4-8-10 ,(concat "^\\(?:\\S-+[^:]\\|\\[\\S-+\\)\\s-+"
                                    other "at \\(line\\) " line
-                                   ", column " col other
-                                   "\\(?:\n[^\n]+\\)?" severity)
+                                   ", column " col "\\(?:\\.\n\\)?[^\n]+" severity)
                           1 2 3 (5 . 6))
-      (perlcritic-v6-9-11 ,(concat "^\\(?:\\sw+[^:]\\|\\[\\S-+\\)\\s-+"
-                                   other "at \\(line\\) " line
-                                   ", near " other
-                                   "\\(?:\n[^\n]+\\)?" severity)
-                          1 2 nil (4 . 5))
       (perlcritic-v5 ,(concat "^" file ": " other "at line " line
                               ", column " col other severity)
                      1 2 3 (5 . 6))
+      (perlcritic-v6-9-11 ,(concat "^\\(?:\\S-+[^:]\\|\\[\\S-+\\)\\s-+"
+                                   other "at \\(line\\) " line
+                                   ", near " other "\\(?:\\.\n\\)?[^\n]+" severity)
+                          1 2 nil (4 . 5))
       (perlcritic-v7 ,(concat "^" file ": " other "at line " line
                               " near " other severity)
                      1 2 nil (4 . 5))))
@@ -186,11 +192,11 @@ Set the verbose you are not used to nil to avoid add them to
         (list "-noprofile"))
     (if perlcritic-severity
         (list (format "-%d" perlcritic-severity)))
-    (if perlcritic-top
+    (if (and perlcritic-top (> perlcritic-top 0))
         (list "-top" (number-to-string perlcritic-top)))
-    (if perlcritic-include
+    (if (and perlcritic-include (> (length perlcritic-include) 0))
         (list "-include" perlcritic-include))
-    (if perlcritic-exclude
+    (if (and perlcritic-exclude (> (length perlcritic-exclude) 0))
         (list "-exclude" perlcritic-exclude))
     (if perlcritic-force
         (list "-force"))
@@ -200,18 +206,19 @@ Set the verbose you are not used to nil to avoid add them to
           
 (defun perlcritic-setup (command &optional region)
   "Add handler for find-file and adjust line number."
-  (with-current-buffer next-error-last-buffer
-    (set (make-local-variable 'perlcritic-regexp)
-         (if (string-match "-verbose\\s-+\\([0-9]+\\)" command)
-             (cdr (assq (aref (string-to-number (match-string 1 command))
-                              perlcritic-used-verbose)
-                        perlcritic-error-regexp-alist))
-           '("at line \\([0-9]+\\)" nil 1)))
-    (set (make-local-variable 'perlcritic-buffer) buf)
-    (set (make-local-variable 'compilation-parse-errors-filename-function)
-         'perlcritic-file-name)
-    (setq perlcritic-line-offset nil))
-  (set-process-filter (get-buffer-process next-error-last-buffer) 'perlcritic-filter))
+  (let ((buf (current-buffer)))
+    (with-current-buffer next-error-last-buffer
+      (set (make-local-variable 'perlcritic-regexp)
+           (if (string-match "-verbose\\s-+\\([0-9]+\\)" command)
+               (cdr (assq (aref (string-to-number (match-string 1 command))
+                                perlcritic-used-verbose)
+                          perlcritic-error-regexp-alist))
+             '("at line \\([0-9]+\\)" nil 1)))
+      (set (make-local-variable 'perlcritic-buffer) buf)
+      (set (make-local-variable 'compilation-parse-errors-filename-function)
+           'perlcritic-file-name)
+      (setq perlcritic-line-offset nil))
+    (set-process-filter (get-buffer-process next-error-last-buffer) 'perlcritic-filter)))
 
 ;;;###autoload 
 (defun perlcritic ()
@@ -219,19 +226,17 @@ Set the verbose you are not used to nil to avoid add them to
 If region selected, call perlcritic on the region, otherwise call
 perlcritic use the command given."
   (interactive)
-  (let ((buf (current-buffer)))
-    (setq compile-command (concat (perlcritic-command) " "
-                                  (file-name-nondirectory buffer-file-name)))
-    (unless (string= compile-command (car compile-history))
-      (setq compile-history (cons compile-command compile-history)))
-    (call-interactively 'compile)
-    (perlcritic-setup compile-command)))
+  (setq compile-command (concat (perlcritic-command) " "
+                                (file-name-nondirectory buffer-file-name)))
+  (unless (string= compile-command (car compile-history))
+    (setq compile-history (cons compile-command compile-history)))
+  (call-interactively 'compile)
+  (perlcritic-setup compile-command))
 
 ;;;###autoload 
 (defun perlcritic-region (beg end)
   (interactive "r")
-  (let ((buf (current-buffer))
-        (line (line-number-at-pos beg)))
+  (let ((line (line-number-at-pos beg)))
     ;; exclude strict, because most region does't has strict pragam
     (setq compile-command (concat (perlcritic-command) " -exclude strict "))
     (unless (string= compile-command (car compile-history))

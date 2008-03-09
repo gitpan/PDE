@@ -34,12 +34,15 @@
 (eval-when-compile
   (require 'cl))
 (require 'pde-vars)
+(require 'apropos)
 
 ;; fix for don't install perl module
-(defvar pde-module-location
+(defcustom pde-module-location
   (when (file-exists-p (expand-file-name "../lib/" pde-load-path))
     (expand-file-name "../lib/" pde-load-path))
-  "*Location for PDE perl module if not install them to @INC.")
+  "*Location for PDE perl module if not install them to @INC."
+  :type 'directory
+  :group 'pde)
 
 ;;;###autoload 
 (defun pde-list-module-shadows ()
@@ -61,6 +64,19 @@
                                   (switch-to-buffer (process-buffer proc)))))
       (message "Wait for a while..."))))
 
+(defun pde-hyperlink-modules ()
+  (goto-char (point-min))
+  (while (not (eobp))
+    (make-text-button (point)
+                      (progn (forward-line 1)
+                             (1- (point)))
+                      'action (lambda (but)
+                                (perldoc (intern (button-label but) perldoc-obarray) t))))
+  (goto-char (point-min))
+  (setq buffer-read-only t)
+  (view-mode t)
+  (message "Push button to show the pod."))
+
 ;;;###autoload 
 (defun pde-list-core-modules ()
   "Display a list of core modules."
@@ -74,17 +90,27 @@
              "-MPDE::Util" "-e" "list_core_modules"
              (if pde-module-location
                  (list (concat "-I" pde-module-location))))
-      (goto-char (point-min))
-      (while (not (eobp))
-        (make-text-button (point)
-                          (progn (forward-line 1)
-                                 (1- (point)))
-                          'action (lambda (but)
-                                    (perldoc (intern (button-label but) perldoc-obarray) t))))
-      (goto-char (point-min))
-      (setq buffer-read-only t)
-      (view-mode t)
-      (message "Push button to show the pod."))))
+      (pde-hyperlink-modules))))
+
+;;;###autoload 
+(defun pde-apropos-module (re)
+  "Search modules by name."
+  (interactive (list (apropos-read-pattern "module")))
+  (apropos-parse-pattern re)
+  (let ((inhibit-read-only t)
+        (bufname "*Apropos Perl Modules*")
+        modules)
+    (mapatoms
+     (lambda (sym)
+       (and (eq (perldoc-symbol-type sym) 'module)
+            (string-match apropos-regexp (symbol-name sym))
+            (push (symbol-name sym) modules)))
+     perldoc-obarray)
+    (setq modules (sort modules 'string<))
+    (switch-to-buffer (get-buffer-create bufname))
+    (erase-buffer)
+    (insert (mapconcat 'identity modules "\n") "\n")
+    (pde-hyperlink-modules)))
 
 ;;;###autoload 
 (defun pde-search-cpan (mod)

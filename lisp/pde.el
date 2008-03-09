@@ -45,8 +45,10 @@
   "*PDE Menu")
 
 ;;{{{  Key bindings
-(defvar pde-cperl-prefix "\C-c\C-c"
-  "*prefix key for cperl commands that maybe not used often.")
+(defcustom pde-cperl-prefix "\C-c\C-c"
+  "*prefix key for cperl commands that maybe not used often."
+  :type 'string
+  :group 'pde)
 
 (defvar pde-cperl-map
   (let ((map (make-sparse-keymap)))
@@ -62,8 +64,10 @@
     map)
   "*keymap for cperl commands that maybe not used often.")
 
-(defvar pde-view-prefix "\C-c\C-v"
-  "*prefix for view commands")
+(defcustom pde-view-prefix "\C-c\C-v"
+  "*prefix for view commands"
+  :type 'string
+  :group 'pde)
 
 (defvar pde-view-map
   (let ((map (make-sparse-keymap)))
@@ -73,8 +77,10 @@
     map)
   "*Keymap for view commands")
 
-(defvar pde-perltidy-prefix "\C-c\C-t"
-  "*prefix key for perltidy commands")
+(defcustom pde-perltidy-prefix "\C-c\C-t"
+  "*prefix key for perltidy commands"
+  :type 'string
+  :group 'pde)
 
 (defvar pde-perltidy-map
   (let ((map (make-sparse-keymap)))
@@ -85,8 +91,10 @@
     map)
   "*Keymap for perltidy commands.")
 
-(defvar pde-inf-perl-prefix "\C-c\C-e"
-  "*prefix key for inf-perl commands")
+(defcustom pde-inf-perl-prefix "\C-c\C-e"
+  "*prefix key for inf-perl commands"
+  :type 'string
+  :group 'pde)
 
 (defvar pde-inf-perl-map
   (let ((map (make-sparse-keymap)))
@@ -103,13 +111,17 @@
   "*Keymap for inf-perl commands")
 ;;}}}
 
-(defvar pde-imenu-tree-buffer "*PDE Imenu*"
-  "*Buffer names for perl `imenu-tree'.")
+(defcustom pde-imenu-tree-buffer "*PDE Imenu*"
+  "*Buffer names for perl `imenu-tree'."
+  :type 'string
+  :group 'pde)
 
-(defvar pde-buffer-tabbar-label
+(defcustom pde-buffer-tabbar-label
   `((,perldoc-tree-buffer . "Pod Tree")
     (,pde-imenu-tree-buffer . "Imenu"))
-  "*Labels for buffers")
+  "*Labels for buffers"
+  :type '(alist :key-type string :value-type string)
+  :group 'pde)
 
 (defvar pde-scheduler-timer nil
   "Timer used to schedule tasks in idle time.")
@@ -148,8 +160,13 @@
 (defun pde-ffap-locate (name &optional force)
   "Return cperl module for ffap."
   (let ((mod (perldoc-module-ap)))
-    (if mod
-        (perldoc-locate-module mod))))
+    (when mod
+      (save-excursion
+        (skip-chars-backward perldoc-module-chars)
+        (setq ffap-string-at-point-region
+              (list (point) (+ (point) (length mod)))))
+      (setq ffap-string-at-point mod)
+      (perldoc-locate-module mod))))
 
 ;;;###autoload 
 (defun pde-compilation-buffer-name (mode)
@@ -164,7 +181,7 @@
            (kill-buffer buf))))
      (buffer-list))
     (concat "*" mode
-            (if (> (length bufs) 1)
+            (if (> (length bufs) 0)
                 (format "<%d>" (length bufs)))
             "*")))
 
@@ -236,30 +253,32 @@ and `end-of-defun'."
   "View pod in current buffer using woman.
 With prefix argument, reflesh the formated manpage."
   (interactive "P")
-  ;; make sure there is some pods, otherwise woman will signal error
-  (if (re-search-forward "^=\\sw+" nil t)
-      (let* ((mod
-              (if buffer-file-name
-                  (progn
-                    (pde-set-project-root)
-                    (or (pde-file-package)
-                        (file-name-sans-extension
-                         (file-name-nondirectory
-                          buffer-file-name))))
-                (file-name-sans-extension (buffer-name))))
-             (buf (format "*WoMan Perldoc %s*" mod)))
-        (if (and arg (get-buffer buf))
-            (kill-buffer buf))
-        (unless (buffer-live-p (get-buffer buf))
-          (call-process-region (point-min) (point-max)
-                               "pod2man" nil (get-buffer-create buf)
-                               nil "-n" mod)
-          (with-current-buffer buf
-            (woman-process-buffer)
-            (goto-char (point-min))
-            (setq buffer-read-only t)))
-        (display-buffer buf))
-    (message "No pod found in current buffer")))
+  (save-excursion
+    (goto-char (point-min))
+    ;; make sure there is some pods, otherwise woman will signal error
+    (if (re-search-forward "^=\\sw+" nil t)
+        (let* ((mod
+                (if buffer-file-name
+                    (progn
+                      (pde-set-project-root)
+                      (or (pde-file-package)
+                          (file-name-sans-extension
+                           (file-name-nondirectory
+                            buffer-file-name))))
+                  (file-name-sans-extension (buffer-name))))
+               (buf (format "*WoMan Perldoc %s*" mod)))
+          (if (and arg (get-buffer buf))
+              (kill-buffer buf))
+          (unless (buffer-live-p (get-buffer buf))
+            (call-process-region (point-min) (point-max)
+                                 "pod2man" nil (get-buffer-create buf)
+                                 nil "-n" mod)
+            (with-current-buffer buf
+              (woman-process-buffer)
+              (goto-char (point-min))
+              (setq buffer-read-only t)))
+          (display-buffer buf))
+      (message "No pod found in current buffer"))))
 
 ;;;###autoload 
 (defun pde-perl-mode-hook ()

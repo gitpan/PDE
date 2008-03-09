@@ -62,10 +62,22 @@
 
 (eval-when-compile
   (require 'cl))
-(defvar perltidy-program "perltidy"
-  "*Program name of perltidy")
-(defvar perltidy-buffer-name "*perltidy*"
-  "*Name of the temporary perltidy buffer.")
+
+(defgroup perltidy nil
+  "Tidy perl code using perltidy"
+  :group 'tools
+  :group 'pde)
+
+(defcustom perltidy-program "perltidy"
+  "*Program name of perltidy"
+  :type 'string
+  :group 'perltidy)
+
+(defcustom perltidy-buffer-name "*perltidy*"
+  "*Name of the temporary perltidy buffer."
+  :type 'string
+  :group 'perltidy)
+
 (defvar perltidy-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-x\C-s" 'perltidy-write)

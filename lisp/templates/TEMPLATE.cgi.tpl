@@ -13,12 +13,7 @@ my $cgi = new CGI;
 print $cgi->header( -charset => "utf-8" );
 print $cgi->start_html(
     -title => "(>>>TITLE<<<)",
-    -head  => $cgi->meta(
-        {
-            -http_equiv => "Content-Type",
-            -content    => 'text/html; charset=utf-8',
-        },
-    ),
+    -encoding => 'utf-8',
 );
 
 (>>>POINT<<<)

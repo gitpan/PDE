@@ -40,8 +40,10 @@
 (add-to-list 'template-directory-list
              (expand-file-name "templates" pde-load-path))
 
-(defvar pde-extra-setting t
-  "*Non-nil means more settings.")
+(defcustom pde-extra-setting t
+  "*Non-nil means more settings."
+  :type 'boolean
+  :group 'pde)
 
 ;; autoloads
 (load "pde-loaddefs")

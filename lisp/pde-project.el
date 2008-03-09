@@ -35,8 +35,10 @@
   (require 'cl))
 (require 'pde-vars)
 
-(defvar pde-project-mark-files '("Makefile.PL" "Build.PL")
-  "*The files tell the current directory should be project root.")
+(defcustom pde-project-mark-files '("Makefile.PL" "Build.PL")
+  "*The files tell the current directory should be project root."
+  :type '(repeat string)
+  :group 'pde)
 
 (defvar pde-project-root nil)
 

@@ -64,6 +64,7 @@ Documentation License".
 * imenu-tree::                  Tree view for imenu
 * tags-tree::                   Tree view of TAGS
 * perltidy::                    Call perltidy
+* perlcritic::                  Calling perlcritic
 * perldb-ui::                   Perl Debugger
 * inf-perl::                    Interactive perl shell
 
@@ -71,8 +72,6 @@ Indices
 * Function Index::              
 * Variable Index::              
 * Keybinding Index::            
-
-
 @end menu
 
 @node Introduction, Installation, Top, Top
@@ -420,6 +419,11 @@ This key bindings are added:
 @findex perldb-ui
 @code{perldb-ui} - Debugger with perldb-ui.
 
+@item C-c C-k
+@kindex C-c C-k (perlcritic)
+@findex perlcritic
+@code{perlcritic} - Call perlcritic with current file
+
 @item C-c C-z
 @kindex C-c C-z (run-perl)
 @findex run-perl
@@ -500,6 +504,12 @@ Use Data::Dumper
 
 @file{pde-util} provides several commands that might be useful.
 
+@defopt pde-module-location
+The commands above call perl module PDE::Util to generate the module
+lists. If the module can found in @@INC or @code{pde-load-path} parent
+directory, set this variable to let perl found the module.
+@end defopt
+
 @deffn Command pde-list-module-shadows
 Display a list of modules that shadow other modules.
 @end deffn
@@ -508,11 +518,9 @@ Display a list of modules that shadow other modules.
 Display a list of core modules. Push the text button to show Pod.
 @end deffn
 
-@defopt pde-module-location
-The commands above call perl module PDE::Util to generate the module
-lists. If the module can found in @@INC or @code{pde-load-path} parent
-directory, set this variable to let perl found the module.
-@end defopt
+@deffn Command pde-search-cpan
+Search module or other things in @url{search.cpan.org}.
+@end deffn
 
 @node template-simple
 @comment  node-name,  next,  previous,  up
@@ -1280,7 +1288,60 @@ written using perl.
 @chapter Calling perltidy 
 
 A collection of commands to call perltidy on buffer or region.
-@xref{pde}. 
+@xref{pde}.
+
+@node perlcritic
+@comment  node-name,  next,  previous,  up
+@chapter Calling perlcritic
+
+``perlcritic'' is a Perl source code analyzer. See
+@command{perldoc perlcritic} for detail document of the program.
+@file{perlcritic.el} provide an interface to use ``perlcritic'' in
+Emacs. It invoke the program using @command{compile}, highlight
+severity and add hyperlink to the error.
+
+@deffn Command perlcritic
+Call perlcritic interactive. You can give your argments in the
+minibuffer. Default perform analyzing current visited file.
+@end deffn
+
+@deffn Command perlcritic-region
+perlcritic is known run a little slow. You can use this command to
+analyze only a part of file.
+@end deffn
+
+perlcritic provide a lot of options in command line.
+@file{perlcritic.el} only support a few of options. Additional options
+can be input in the minibuffer or write your profile, default is
+@file{.perlcriticrc}.
+
+@defopt perlcritic-profile
+Specify an alternate .perlcriticrc file.
+If value is nil, use -noprofile,
+If value is t, use the default profile .perlcriticrc,
+If non-nil, and the profile exists, use the profile.
+@end defopt
+
+@defopt perlcritic-severity
+Default severity level is 5 and perlcritic-severity value is nil.
+@end defopt
+
+@defopt perlcritic-top
+Report only the top N Policy violations in each file.
+If the -severity option is not explicitly given, the -top option
+implies that the minimum severity level is 1. Users can redefine
+the severity for any Policy in their .perlcriticrc file.
+@end defopt
+
+@defopt perlcritic-include
+Directs ``perlcritic'' to apply additional Policies
+that match the regex ``/PATTERN/imx''.
+@end defopt
+
+@defopt perlcritic-exclude
+Directs ``perlcritic'' to not apply any Policy that
+matches the regex ``/PATTERN/imx''.
+@end defopt
 
 @node perldb-ui
 @comment  node-name,  next,  previous,  up

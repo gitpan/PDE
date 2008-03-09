@@ -29,7 +29,6 @@
 
 ;;; Code:
 
-(provide 'tree-mode)
 (require 'tree-widget)
 (eval-when-compile
   (require 'cl))
@@ -539,4 +538,5 @@ expand all leaves of the tree."
 ;;     (tree-mode-search nil)))
 ;;}}}
 
+(provide 'tree-mode)
 ;;; tree-mode.el ends here

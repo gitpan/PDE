@@ -44,13 +44,21 @@
 (require 'format-spec)
 (require 'compile)
 
-(defvar compile-dwim-check-tools t
-  "Whether checking makefile or ant or else.")
+(defgroup compile-dwim nil
+  "Automatic generate compile-command"
+  :group 'tools
+  :group 'pde)
+
+(defcustom compile-dwim-check-tools t
+  "Whether checking makefile or ant or else."
+  :type 'boolean
+  :group 'compile-dwim)
 
 (defvar compile-dwim-cache nil
   "Last commands selected.")
 
-(defvar compile-dwim-alist
+;;;###autoload 
+(defcustom compile-dwim-alist
   `((perl (or (name . "\\.pl$")
               (mode . cperl-mode))
           "%i -wc \"%f\"" "%i \"%f\"")
@@ -103,20 +111,24 @@ In commands, these format specification are available:
 The interpreter is the program in the shebang line. If the
 program is valid(test with `executable-find'), then use this program,
 otherwise, use interpreter in `interpreter-mode-alist' according
-to the major mode.")
+to the major mode."
+  :type '(alist :key-type symbol :value-type sexp)
+  :group 'compile-dwim)
 
 (defvar compile-dwim-run-buffer nil
   "Internal variable used by `compile-dwim-run'.
 `compile-dwim-prompt-run' can't remember which buffer last used.")
 
-(defvar compile-dwim-interpreter-alist
+(defcustom compile-dwim-interpreter-alist
   '((perl . "perl"))
   "*Interpreter for file type.
 The CAR is the type defined in `compile-dwim-alist', the CDR is
 the associated interpreter name. Usually, you don't have to set
 this, the default interpreter can be found in
 `interpreter-mode-alist'. Unfortunately `cperl-mode' is not in
-that alist.")
+that alist."
+  :type '(alist :key-type symbol :value-type string)
+  :group 'compile-dwim)
 
 (defsubst compile-dwim-conf (name conf)
   (nth (assoc-default name '((type . 0)

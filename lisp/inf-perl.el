@@ -41,7 +41,8 @@
 (defgroup inf-perl nil
   "*Running perlsh from whthin Emacs buffers"
   :group 'processes
-  :group 'unix)
+  :group 'unix
+  :group 'pde)
 
 (defcustom inf-perl-prompt-pattern  "^[^#$%>\n]*[#$%>] *"
   "*Regexp to match prompts in shell"
@@ -90,8 +91,10 @@ Defaults to a regexp ignoring all inputs of 0, 1, or 2 letters."
   :type 'hook
   :group 'inf-perl)
 
-(defvar inf-perl-remove-my t
-  "If non-nil, the \"my\" declare will remove for lexial scope")
+(defcustom inf-perl-remove-my t
+  "If non-nil, the \"my\" declare will remove for lexial scope"
+  :type 'boolean
+  :group 'inf-perl)
 
 (defvar inf-perl-buffer nil
   "Internal variable: current perl process buffer.")

@@ -30,28 +30,38 @@
 (eval-when-compile
   (require 'cl))
 
-(defvar pde-version "0.01"
+(defvar pde-version "0.2.6"
   "Version of PDE")
 
-(defvar pde-perl-program "perl"
-  "*Name of perl")
+(defcustom pde-perl-program "perl"
+  "*Name of perl"
+  :type 'string
+  :group 'pde)
 
-(defvar pde-perl-version "5.8.8"
-  "*Version of perl used")
+(defcustom pde-perl-version "5.8.8"
+  "*Version of perl used"
+  :type 'string
+  :group 'pde)
 
-(defvar pde-perldoc-program "perldoc"
-  "*Name of perldoc")
+(defcustom pde-perldoc-program "perldoc"
+  "*Name of perldoc"
+  :type 'string
+  :group 'pde)
 
-(defvar pde-load-path (file-name-directory load-file-name)
-  "*Directory name of pde")
+(defcustom pde-load-path (file-name-directory load-file-name)
+  "*Directory name of pde"
+  :type 'directory
+  :group 'pde)
 
-(defvar pde-perl-inc
+(defcustom pde-perl-inc
   (when pde-perl-program
     (let ((cmd (format "%s -e \"print join(';', grep { -d && /^[^.]/} @INC);\""
                        pde-perl-program)))
       (mapcar 'file-name-as-directory
               (split-string (shell-command-to-string cmd) ";"))))
-  "*Include path of perl")
+  "*Include path of perl"
+  :type '(repeat directory)
+  :group 'pde)
 
 (provide 'pde-vars)
 ;;; pde-vars.el ends here

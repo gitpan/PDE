@@ -64,12 +64,21 @@
 
 
 ;;; Customizable variables
-(defvar template-directory-list (append '("~/.templates/")
-                                        (if (boundp 'auto-insert-directory)
-                                            (list auto-insert-directory)))
-  "*Directory for lookup template files.")
+(defgroup template-simple nil
+  "Simple template functions and utils"
+  :group 'abbrev
+  :group 'convenience
+  :group 'pde)
 
-(defvar template-default-alist
+(defcustom template-directory-list
+  (append '("~/.templates/")
+          (if (boundp 'auto-insert-directory)
+              (list auto-insert-directory)))
+  "*Directory for lookup template files."
+  :type '(repeat directory)
+  :group 'template-simple)
+
+(defcustom template-default-alist
   '(("dir" (file-name-directory template-file-name))
     ("file" (file-name-nondirectory template-file-name))
     ("file-sans" (file-name-sans-extension
@@ -93,25 +102,38 @@
     ("user-name" user-full-name)
     ("login-name" user-login-name)
     ("host-addr" (or mail-host-address (system-name))))
-  "*Default expansion list")
-(defvar template-date-format "%d %b %Y"
-  "*Date format for date in `template-default-alist'.")
-(defvar template-cdate-format "%d %b %Y"
-  "*Date format for date with `system-time-locale' has value \"C\"")
-(defvar template-time-format "%T"
-  "*Time format for time in `template-time-format'.")
+  "*Default expansion list"
+  :type '(alist :key-type string :value-type sexp)
+  :group 'template-simple)
 
-(defvar template-header-regexp
+(defcustom template-date-format "%d %b %Y"
+  "*Date format for date in `template-default-alist'."
+  :type 'string
+  :group 'template-simple)
+
+(defcustom template-cdate-format "%d %b %Y"
+  "*Date format for date with `system-time-locale' has value \"C\""
+  :type 'string
+  :group 'template-simple)
+
+(defcustom template-time-format "%T"
+  "*Time format for time in `template-time-format'."
+  :type 'string
+  :group 'template-simple)
+
+(defcustom template-header-regexp
   '(("@(#)\\([^ \t\n]+\\)" . 1)
     ("^\\([^ \t]\\{,3\\}[ \t]+\\)\\([^ \t\n][^ \t\n]*\\)[ \t]+--" . 2))
   "Alist of regexps matching the file name in the header.
 `car' is a regexp to match file header, `cdr' indicate which part
-to replace with the file name.")
-(defvar template-inhibit-update-regexp
-  "_ido_last"
-  "")
-(defvar template-query t
-  "*Non-nil means ask user before expand template or update header.")
+to replace with the file name."
+  :type '(alist :key-type regexp :value-type integer)
+  :group 'template-simple)
+
+(defcustom template-query t
+  "*Non-nil means ask user before expand template or update header."
+  :type 'boolean
+  :group 'template-simple)
 
 (defvar template-skeleton-alist
   '(("point" _))
@@ -263,12 +285,10 @@ template is translated by `template-expansion'"
        (setq template (apply 'append (mapcar 'template-expansion template)))
        ,@body)))
 
-;;;###autoload
 (define-template-expander skeleton template-skeleton-alist
   (skeleton-insert (cons nil template)))
 
 (autoload 'tempo-insert-template "tempo")
-;;;###autoload
 (define-template-expander tempo template-tempo-alist
   (let ((tempo-template template))
     (tempo-insert-template 'tempo-template nil)))

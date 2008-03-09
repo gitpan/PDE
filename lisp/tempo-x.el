@@ -98,7 +98,8 @@
 (defgroup tempo-x nil
   "Various tempo elements handler."
   :group 'abbrev
-  :group 'convenience)
+  :group 'convenience
+  :group 'pde)
 
 ;;;###autoload 
 (defun tempo-x-space ()
@@ -140,6 +141,7 @@ Like `tempo-insert-prompt', but you can give parameters for
            "")
           (saved "")
           (tempo-interactive
+           (if (symbolp default) (setq default (symbol-value default)))
            (cond ((stringp prompt)
                   (setq insertion (read-from-minibuffer prompt default)))
                  ((and (listp prompt) (stringp (car prompt)))
@@ -229,8 +231,10 @@ FIXME: the regexp above is display incorrect.
 ;;; 1. use with other tempo elements as well as users elements
 ;;; 2. add keymap in snippet region
 ;;; 3. easy interface for form.
-(defvar tempo-x-exclude-chars ""
-  "*Chars not to extend when add to front or end of the field.")
+(defcustom tempo-x-exclude-chars ""
+  "*Chars not to extend when add to front or end of the field."
+  :type 'string
+  :group 'tempo-x)
 
 (defface tempo-x-editable-face
   '((((background dark)) (:background "steel blue"))
@@ -425,6 +429,10 @@ changed, the text of form will change too."
   "Clear OVERLAY and its mirrors."
   (mapc 'tempo-x-delete-overlay
         (overlay-get overlay 'tempo-x-mirrors))
+  (mapc (lambda (ov)
+          (setq tempo-x-snippet-forms (delq ov tempo-x-snippet-forms))
+          (tempo-x-delete-overlay ov))
+        (overlay-get overlay 'tempo-x-forms))
   (setq tempo-x-snippet-sources
         (delq (assq (overlay-get overlay 'tempo-x-name) tempo-x-snippet-sources)
               tempo-x-snippet-sources))

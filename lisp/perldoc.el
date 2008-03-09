@@ -35,37 +35,50 @@
   (require 'cl))
 (require 'woman)
 (require 'pde-vars)
-(require 'tree-widget)
 (require 'tree-mode)
 (require 'windata)
 
 (defgroup perldoc nil
   "Search document using perldoc"
-  :group 'tools)
+  :group 'tools
+  :group 'pde)
 
-(defvar perldoc-cache-el
+(defcustom perldoc-cache-el
   (expand-file-name "tools/perldoc-cache.el" pde-load-path)
-  "*Cache file name for build `perldoc-obarray'.")
+  "*Cache file name for build `perldoc-obarray'."
+  :type 'file
+  :group 'perldoc)
 
-(defvar perldoc-cache-pl
+(defcustom perldoc-cache-pl
   (expand-file-name "tools/perldoc-cache.pl" pde-load-path)
-  "*Perl script to generate `perldoc-cache-el'")
+  "*Perl script to generate `perldoc-cache-el'"
+  :type 'file
+  :group 'perldoc)
 
-(defvar perldoc-pod2man "pod2man"
-  "*Program name of pod2man")
+(defcustom perldoc-pod2man "pod2man"
+  "*Program name of pod2man"
+  :type 'string
+  :group 'perldoc)
 
-(defvar perldoc-buffer-format "*WoMan Perldoc %S*"
-  "*Buffer name for perldoc buffer.")
+(defcustom perldoc-buffer-format "*WoMan Perldoc %S*"
+  "*Buffer name for perldoc buffer."
+  :type 'string
+  :group 'perldoc)
 
 (defvar perldoc-module-chars "0-9a-zA-Z_:"
   "*Characters may occur in perl module name.")
 
-(defvar perldoc-auto-encoding t
-  "*Non-nil means handler encoding by emacs.")
+(defcustom perldoc-auto-encoding t
+  "*Non-nil means handler encoding by emacs."
+  :type 'boolean
+  :group 'perldoc)
 
-(defvar perldoc-pod-encoding-list
+;;;###autoload 
+(defcustom perldoc-pod-encoding-list
   '(("perltw" . big5))
-  "*Encoding for pods")
+  "*Encoding for pods"
+  :type '(alist :key-type string :value-type coding-system)
+  :group 'perldoc)
 
 (defvar perldoc-obarray nil
   "All perl modules name and functions.
@@ -75,15 +88,21 @@ Modules are only interned. Pragmas are listed in
 \"perl\". Note that \"open\" and \"sort\" are known as function
 and pragma, the pragma is add \".pod\" to distinguish from function.")
 
-(defvar perldoc-tree-buffer "*Perldoc*"
-  "*Buffer name for `perldoc-tree'")
+(defcustom perldoc-tree-buffer "*Perldoc*"
+  "*Buffer name for `perldoc-tree'"
+  :type 'string
+  :group 'perldoc)
 
-(defvar perldoc-tree-theme "default"
-  "*Theme of tree-widget.")
+(defcustom perldoc-tree-theme "default"
+  "*Theme of tree-widget."
+  :type 'string
+  :group 'perldoc)
 
-(defvar perldoc-tree-windata '(frame left 0.3 delete)
+(defcustom perldoc-tree-windata '(frame left 0.3 delete)
   "*Arguments to set the window buffer display.
-See `windata-display-buffer' for setup the arguments.")
+See `windata-display-buffer' for setup the arguments."
+  :type 'sexp
+  :group 'perldoc)
 
 (defvar perldoc-pragmas
   '("attributes" "attrs" "autouse" "base" "bigint" "bignum" "bigrat"
@@ -155,6 +174,13 @@ With prefix arguments force cache update."
               (error "Something is wrong. Please check the cache file `perldoc-cache-el' and build cache manually.")))
       (perldoc-build-obarray))))
 
+(defun perldoc-symbol-type (sym)
+  (cond ((boundp sym) 'function)
+        ((string-match "^perl" (symbol-name sym)) 'core-document)
+        ;; ((member (replace-regexp-in-string "\.pod$" (symbol-name sym))
+        ;;          perldoc-pragmas) 'pragma)
+        (t 'module)))
+
 ;;;###autoload 
 (defun perldoc (symbol &optional modulep)
   "Display perldoc using woman.
@@ -164,8 +190,9 @@ function is the same, add \".pod\" for the module name. For example,
   (interactive
    (list
     (intern (perldoc-read-module "Perldoc" t) perldoc-obarray)))
-  ;; if sure it is module
-  (and modulep (boundp symbol)
+  ;; if sure it is module and the symbol can be a function, add suffix ".pod"
+  (and modulep
+       (eq (perldoc-symbol-type symbol) 'function)
        (setq symbol (intern-soft (format "%s.pod" symbol) perldoc-obarray)))
   (let ((buf (format perldoc-buffer-format symbol))
         (name (symbol-name symbol))
@@ -181,7 +208,7 @@ function is the same, add \".pod\" for the module name. For example,
             (setq default-process-coding-system
                   (cons 'raw-text (cdr default-process-coding-system))
                   process-coding-system-alist nil))
-          (if (boundp symbol)           ; function
+          (if (eq (perldoc-symbol-type symbol) 'function) ; function
               (progn
                 (call-process pde-perldoc-program nil t nil "-u" "-f" name)
                 (goto-char (point-min))
@@ -216,7 +243,7 @@ function is the same, add \".pod\" for the module name. For example,
              ;; if error, show the document as text
              (erase-buffer)
              (apply 'call-process
-                    `(,pde-perldoc-program nil t nil ,@(if (boundp symbol) "-f") ,name))))
+                    `(,pde-perldoc-program nil t nil ,@(if (eq (perldoc-symbol-type symbol) 'function) "-f") ,name))))
           (goto-char (point-min))
           (display-buffer (current-buffer)))))))
 
@@ -232,11 +259,16 @@ function is the same, add \".pod\" for the module name. For example,
          case-fold-search)
     ;; if it is a Package::sub, remove the sub
     (unless def
-      (setq mod (replace-regexp-in-string "::[_a-z][^:]*$" "" mod))
-      (setq def (intern-soft mod perldoc-obarray)))
+      (setq def (replace-regexp-in-string "::[_a-z][^:]*$" "" mod))
+      (setq def (intern-soft def perldoc-obarray))
+      (if def
+          (setq mod (symbol-name def))
+        (when (and (string-match "::" mod)
+                   (yes-or-no-p "Seem like a Perl module. If sure it is installed, you should update cache. Update now? "))
+          (perldoc-build-obarray t)
+          (signal 'quit "Please wait for a while..."))))
     (and def
-         (not (boundp def))               ; not function
-         (not (string-match "^perl" mod)) ; not core module
+         (eq (perldoc-symbol-type def) 'module)
          mod)))
 
 (defsubst perldoc-locate-module (module)
@@ -256,7 +288,7 @@ Don't add \": \" in PROMPT."
                      perldoc-obarray
                      (lambda (m)
                        ;; not a function
-                       (not (boundp m)))
+                       (eq (perldoc-symbol-type m) 'module))
                      require-match init nil default)))
 
 (defun perldoc-find-module (&optional module other-window)
@@ -397,9 +429,9 @@ Don't add \": \" in PROMPT."
   (let ((sym (intern-soft module perldoc-obarray))
         case-fold-search wid cat)
     (when sym
-      (cond ((boundp sym)
+      (cond ((eq (perldoc-symbol-type sym) 'function)
              (setq cat "Function"))
-            ((string-match "^perl[^:]" module)
+            ((eq (perldoc-symbol-type sym) 'core-document)
              (setq cat "Core document"))
             (t (setq module (replace-regexp-in-string "\\.pod$" "" module))
                (if (member module perldoc-pragmas)
@@ -434,7 +466,8 @@ Don't add \": \" in PROMPT."
       (mapcar (lambda (f)
                 (perldoc-item f t))
               (sort (all-completions "" perldoc-obarray
-                                     (lambda (sym) (and sym (boundp sym))))
+                                     (lambda (sym)
+                                       (and sym (eq (perldoc-symbol-type  sym) 'function))))
                     'string<))))
 
 (defun perldoc-coredoc-expand (tree)
@@ -447,28 +480,22 @@ Don't add \": \" in PROMPT."
 
 (defun perldoc-pragam-expand (tree)
   (or (widget-get tree :args)
-      (mapcar 'perldoc-item
-              perldoc-pragmas)))
+      (mapcar 'perldoc-item perldoc-pragmas)))
 
 (defun perldoc-modules-expand (tree)
   (or (widget-get tree :args)
       (let ((hash (make-hash-table :test 'equal))
             case-fold-search
-            module)
+            modules)
         (mapatoms
          (lambda (sym)
-           (and (not (boundp sym))
+           (and (eq (perldoc-symbol-type sym) 'module)
+                (not (string-match "\.pod$" (symbol-name sym)))
+                (not (member (symbol-name sym) perldoc-pragmas))
                 (puthash (car (split-string (symbol-name sym) "::")) t hash)))
          perldoc-obarray)
-        (maphash
-         (lambda (key val)
-           (unless (or (string-match "^perl" key)
-                       (string-match "\\.pod$" key)
-                       (member key perldoc-pragmas))
-             (push key module)))
-         hash)
-        (mapcar 'perldoc-module-item
-                (sort module 'string<)))))
+        (maphash (lambda (key val) (push key modules)) hash)
+        (mapcar 'perldoc-module-item (sort modules 'string<)))))
 
 (defun perldoc-has-submodp (module)
   "Test whether the MODULE has submodule."

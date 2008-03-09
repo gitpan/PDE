@@ -1,4 +1,39 @@
+2008-03-09  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-abbv.el (pde-abbv-no-blank): Make some abbrev expand
+	without insert whitespace.
+
+2008-02-29  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde.el (pde-pod-to-manpage): Fix for search pod from point-min
+
+2008-01-13  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/perldoc.el (perldoc-symbol-type): New function to distinct
+	symbols in obarray. Change relate functions to use this.
+
+	* lisp/pde-util.el (pde-apropos-module): New command
+
+2008-01-06  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde.el (pde-compilation-buffer-name): fix bug: not 1 but 0
+
+	* lisp/tempo-x.el (tempo-x-snippet-clear): fix bug: clear forms
+	when source overlay is deleted
+
+2008-01-01  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/compile-dwim.el and others: change defvar to defcustom
+	definition
+
+	* lisp/doc/pde.texi (perlcritic): Add docuemnt for perlcritic
+
 2007-12-31  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde.el (pde-ffap-locate): make ffap-highlight correct region
+
+	* lisp/perldoc.el (perldoc-module-ap): recache if the thing at
+	point like a module
 
 	* lisp/perlcritic.el: add perlcritic.el
 

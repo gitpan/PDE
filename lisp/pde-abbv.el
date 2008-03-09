@@ -45,8 +45,10 @@
   (require 'cl))
 (require 'tempo-x)
 
-(defvar pde-abbv-use-snippet t
-  "*Non-nil means use snippet instead of standard tempo.")
+(defcustom pde-abbv-use-snippet t
+  "*Non-nil means use snippet instead of standard tempo."
+  :type 'boolean
+  :group 'pde)
 
 (defvar tempo-perl-tags nil
   "Tempo tags for cperl-mode")
@@ -67,7 +69,7 @@
 
 (tempo-define-template
  "perl-dump"
- '("print Dumper(" p "), \"\n\";")
+ '("print Dumper(" p "), \"\\n\";")
  "dumpx"
  "expand for Data::Dumper::Dumper."
  'tempo-perl-tags)
@@ -175,17 +177,36 @@
    'tempo-perl-tags)
    )
 
+(defun pde-abbv-no-blank ()
+  "Expand abbrev without insert blank."
+  (if (string= (this-command-keys) " ") t))
+(put 'pde-abbv-no-blank 'no-self-insert t)
+
 ;; standard abbrev that don't need tempo
-(define-abbrev-table 'cperl-mode-abbrev-table '(
-  ("usegtk" "use Gtk2 '-init';
+(define-abbrev-table 'cperl-mode-abbrev-table
+  '(("usegtk" "use Gtk2 '-init';
 use Glib qw(TRUE FALSE);
 
 my $window = Gtk2::Window->new('toplevel');
-$window->signal_connect('delete_event' => sub { Gtk2->main_quit; });
-" nil 0)
-  ("useenc" "use Encode qw(encode decode from_to);" nil 0)
-  ("usedump" "use Data::Dumper qw(Dumper);" nil 0)
-  ))
+$window->signal_connect('delete_event' => sub { Gtk2->main_quit; });"
+     pde-abbv-no-blank 0)
+    ("useenc" "use Encode qw(encode decode from_to);"
+     pde-abbv-no-blank 0)
+    ("usedump" "use Data::Dumper qw(Dumper);"
+     pde-abbv-no-blank 0)
+    ("useopt" "use Getopt::Long;
+GetOptions();" pde-abbv-no-blank 0)))
   
+(tempo-define-template
+ "filevar"
+ '((pi "Prefix: " comment-start prefix) "Local Variables: ***\n"
+   (R (s prefix)
+      (pi ("Variable: " ("mode" "coding")) nil var)
+      (& var (delete-region recursion-start (point)))
+      ": " (p "Value: ")
+      " ***\n")
+   (s prefix) "End: ***\n")
+ "filevarx")
+
 (provide 'pde-abbv)
 ;;; pde-abbv.el ends here

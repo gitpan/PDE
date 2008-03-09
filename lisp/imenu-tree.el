@@ -40,7 +40,8 @@
 
 (defgroup imenu-tree nil
   "Display imenu using tree-widget"
-  :group 'convenience)
+  :group 'convenience
+  :group 'pde)
 
 (defcustom imenu-tree-create-buffer-function nil
   "*A function to create buffer for insert imenu tree"
@@ -52,6 +53,7 @@
   :group 'imenu-tree
   :type 'sexp)
 
+;;;###autoload
 (defcustom imenu-tree-icons
   '(("Types" . "function")
     ("Variables" . "variable"))

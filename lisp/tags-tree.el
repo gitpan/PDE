@@ -40,7 +40,8 @@
 ;;{{{  customization and variables definition
 (defgroup tags-tree nil
   "Display TAGS using tree-widget"
-  :group 'convenience)
+  :group 'convenience
+  :group 'pde)
 
 (defcustom tags-tree-create-buffer-function nil
   "A function to create buffer for insert tags tree"
@@ -77,7 +78,8 @@ The group name set in a list to distinct with tags name.
   :group 'tags-tree
   :type 'function)
 
-(defvar tags-tree-list nil "Alist for (FILE . TREE)")
+(defvar tags-tree-list nil
+  "Alist for (FILE . TREE)")
 
 (defvar tags-tree-icons
   '(("Variables" . "other")))

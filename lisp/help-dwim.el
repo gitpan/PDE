@@ -42,15 +42,13 @@
 
 (defgroup help-dwim nil
   "Show help information from different source."
-  :group 'help)
+  :group 'help
+  :group 'pde)
 
-(defcustom help-dwim-type-alist
+(defvar help-dwim-type-alist
   '((elisp-function . [function-called-at-point obarray fboundp describe-function])
     (elisp-variable . [variable-at-point obarray boundp describe-variable]))
-  "*List of types for `help-dwim'.
-"
-  :type '(alist :key-type symbol)
-  :group 'help-dwim)
+  "*List of types for `help-dwim'.")
 
 (defvar help-dwim-autoloads nil
   "Autoload code for `help-dwim-load-extra'")

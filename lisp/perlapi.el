@@ -35,13 +35,22 @@
 (require 'woman)
 (require 'pde-vars)
 
-(defvar perlapi-file
+(defgroup perlapi nil
+  "Search document for perlapi"
+  :group 'tools
+  :group 'pde)
+
+(defcustom perlapi-file
   (let ((file (shell-command-to-string (format "%s -l perlapi" pde-perldoc-program))))
     (expand-file-name (substring file 0 -1)))
-  "*Pod file of perlapi")
+  "*Pod file of perlapi"
+  :type 'file
+  :group 'perlapi)
 
-(defvar perlapi-src-directory nil
-  "*Directory where the Perl source files can be found.")
+(defcustom perlapi-src-directory nil
+  "*Directory where the Perl source files can be found."
+  :type 'directory
+  :group 'perlapi)
 
 (defvar perlapi-obarray
   (let ((db (make-vector 293 0))

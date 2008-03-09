@@ -56,6 +56,7 @@ This is manual for PDE version 0.01
 * imenu-tree::                  Tree view for imenu
 * tags-tree::                   Tree view of TAGS
 * perltidy::                    Call perltidy
+* perlcritic::                  Calling perlcritic
 * perldb-ui::                   Perl Debugger
 * inf-perl::                    Interactive perl shell
 
@@ -344,6 +345,9 @@ major-mode is cperl-mode are defined in `pde-perl-mode-hook'
 `C-c C-d'
      `perldb-ui' - Debugger with perldb-ui.
 
+`C-c C-k'
+     `perlcritic' - Call perlcritic with current file
+
 `C-c C-z'
      `run-perl' - Start or switch to interactive perl shell.
 
@@ -422,16 +426,19 @@ File: pde.info,  Node: pde-util,  Next: template-simple,  Prev: pde-abbv,  Up: T
 
 `pde-util' provides several commands that might be useful.
 
+ -- User Option: pde-module-location
+     The commands above call perl module PDE::Util to generate the
+     module lists. If the module can found in @INC or `pde-load-path'
+     parent directory, set this variable to let perl found the module.
+
  -- Command: pde-list-module-shadows
      Display a list of modules that shadow other modules.
 
  -- Command: pde-list-core-modules
      Display a list of core modules. Push the text button to show Pod.
 
- -- User Option: pde-module-location
-     The commands above call perl module PDE::Util to generate the
-     module lists. If the module can found in @INC or `pde-load-path'
-     parent directory, set this variable to let perl found the module.
+ -- Command: pde-search-cpan
+     Search module or other things in `search.cpan.org'.
 
 
 File: pde.info,  Node: template-simple,  Next: tabbar-x,  Prev: pde-util,  Up: Top
@@ -1117,7 +1124,7 @@ File: pde.info,  Node: tags-tree,  Next: perltidy,  Prev: imenu-tree,  Up: Top
      written using perl.
 
 
-File: pde.info,  Node: perltidy,  Next: perldb-ui,  Prev: tags-tree,  Up: Top
+File: pde.info,  Node: perltidy,  Next: perlcritic,  Prev: tags-tree,  Up: Top
 
 20 Calling perltidy
 *******************
@@ -1126,9 +1133,55 @@ A collection of commands to call perltidy on buffer or region.  *Note
 pde::.
 
 
-File: pde.info,  Node: perldb-ui,  Next: inf-perl,  Prev: perltidy,  Up: Top
+File: pde.info,  Node: perlcritic,  Next: perldb-ui,  Prev: perltidy,  Up: Top
 
-21 Perl Debugger
+21 Calling perlcritic
+*********************
+
+"perlcritic" is a Perl source code analyzer. See `perldoc perlcritic'
+for detail document of the program.  `perlcritic.el' provide an
+interface to use "perlcritic" in Emacs. It invoke the program using
+`compile', highlight severity and add hyperlink to the error.
+
+ -- Command: perlcritic
+     Call perlcritic interactive. You can give your argments in the
+     minibuffer. Default perform analyzing current visited file.
+
+ -- Command: perlcritic-region
+     perlcritic is known run a little slow. You can use this command
+     to analyze only a part of file.
+
+   perlcritic provide a lot of options in command line.
+`perlcritic.el' only support a few of options. Additional options can
+be input in the minibuffer or write your profile, default is
+`.perlcriticrc'.
+
+ -- User Option: perlcritic-profile
+     Specify an alternate .perlcriticrc file.  If value is nil, use
+     -noprofile, If value is t, use the default profile .perlcriticrc,
+     If non-nil, and the profile exists, use the profile.
+
+ -- User Option: perlcritic-severity
+     Default severity level is 5 and perlcritic-severity value is nil.
+
+ -- User Option: perlcritic-top
+     Report only the top N Policy violations in each file.  If the
+     -severity option is not explicitly given, the -top option
+     implies that the minimum severity level is 1. Users can redefine
+     the severity for any Policy in their .perlcriticrc file.
+
+ -- User Option: perlcritic-include
+     Directs "perlcritic" to apply additional Policies that match the
+     regex "/PATTERN/imx".
+
+ -- User Option: perlcritic-exclude
+     Directs "perlcritic" to not apply any Policy that matches the
+     regex "/PATTERN/imx".
+
+
+File: pde.info,  Node: perldb-ui,  Next: inf-perl,  Prev: perlcritic,  Up: Top
+
+22 Perl Debugger
 ****************
 
 perldb provide the minimal debugger interface in emacs.
@@ -1212,7 +1265,7 @@ want control debugger in source buffer, maybe turn on
 
 File: pde.info,  Node: inf-perl,  Next: Function Index,  Prev: perldb-ui,  Up: Top
 
-22 Interactive perl shell
+23 Interactive perl shell
 *************************
 
 An interactive shell is easier to prove some simple idea or check a
@@ -1279,13 +1332,17 @@ Function Index
 * pde-file-package:                      pde-project.       (line  20)
 * pde-imenu-tree:                        pde.               (line  57)
 * pde-indent-dwim:                       pde.               (line 142)
-* pde-list-core-modules:                 pde-util.          (line  12)
-* pde-list-module-shadows:               pde-util.          (line   9)
+* pde-list-core-modules:                 pde-util.          (line  17)
+* pde-list-module-shadows:               pde-util.          (line  14)
 * pde-perl-mode-hook:                    pde.               (line 152)
 * pde-perldoc-tree:                      pde.               (line  63)
 * pde-pod-to-manpage:                    pde.               (line  60)
+* pde-search-cpan:                       pde-util.          (line  20)
 * pde-set-project-root:                  pde-project.       (line  17)
 * pde-tabbar-register:                   pde.               (line 130)
+* perlcritic <1>:                        perlcritic.        (line  12)
+* perlcritic:                            pde.               (line 166)
+* perlcritic-region:                     perlcritic.        (line  16)
 * perldb-gud-mode:                       perldb-ui.         (line  73)
 * perldb-many-windows:                   perldb-ui.         (line  22)
 * perldb-restore-windows:                perldb-ui.         (line  26)
@@ -1300,7 +1357,7 @@ Function Index
 * perltidy-dwim:                         pde.               (line  82)
 * perltidy-region:                       pde.               (line  76)
 * perltidy-subroutine:                   pde.               (line  79)
-* run-perl:                              pde.               (line 166)
+* run-perl:                              pde.               (line 169)
 * tabbar-x-register:                     tabbar-x.          (line  12)
 * tags-tree-update-file:                 tags-tree.         (line  41)
 * template-compile:                      template-simple.   (line  10)
@@ -1356,13 +1413,18 @@ Variable Index
 * pde-extra-setting:                     pde-load.           (line 12)
 * pde-inf-perl-map:                      pde.                (line 93)
 * pde-inf-perl-prefix:                   pde.                (line 90)
-* pde-module-location:                   pde-util.           (line 15)
+* pde-module-location:                   pde-util.           (line  9)
 * pde-perltidy-map:                      pde.                (line 70)
 * pde-perltidy-prefix:                   pde.                (line 67)
 * pde-project-mark-files:                pde-project.        (line 13)
 * pde-view-map:                          pde.                (line 54)
 * pde-view-prefix:                       pde.                (line 51)
 * perlapi-src-directory:                 perlapi.            (line  9)
+* perlcritic-exclude:                    perlcritic.         (line 43)
+* perlcritic-include:                    perlcritic.         (line 39)
+* perlcritic-profile:                    perlcritic.         (line 25)
+* perlcritic-severity:                   perlcritic.         (line 30)
+* perlcritic-top:                        perlcritic.         (line 33)
 * perldb-many-windows:                   perldb-ui.          (line 15)
 * perldb-use-separate-io-buffer:         perldb-ui.          (line 18)
 * tags-tree-create-buffer-function:      tags-tree.          (line  9)
@@ -1391,7 +1453,8 @@ Keybinding Index
 * C-b (perltidy-buffer):                 pde.               (line  73)
 * C-c C-d (perldb-ui):                   pde.               (line 163)
 * C-c C-f (flymake-mode):                pde.               (line 160)
-* C-c C-z (run-perl):                    pde.               (line 166)
+* C-c C-k (perlcritic):                  pde.               (line 166)
+* C-c C-z (run-perl):                    pde.               (line 169)
 * C-e (cperl-toggle-electric):           pde.               (line  19)
 * C-e (inf-perl-send):                   pde.               (line  96)
 * C-i (pde-imenu-tree):                  pde.               (line  57)
@@ -1441,30 +1504,31 @@ Keybinding Index
 
 Tag Table:
 Node: Top708
-Node: Introduction2572
-Node: Installation3229
-Node: pde-load4182
-Node: pde6080
-Node: pde-vars10933
-Node: pde-project11253
-Node: pde-abbv11971
-Node: pde-util12654
-Node: template-simple13282
-Node: tabbar-x18415
-Node: tempo-x18892
-Node: compile-dwim24253
-Node: help-dwim26022
-Node: perldoc27619
-Node: perlapi28908
-Node: windata29308
-Node: tree-mode35230
-Node: imenu-tree36657
-Node: tags-tree37738
-Node: perltidy39272
-Node: perldb-ui39472
-Node: inf-perl41780
-Node: Function Index42887
-Node: Variable Index48711
-Node: Keybinding Index51277
+Node: Introduction2623
+Node: Installation3280
+Node: pde-load4233
+Node: pde6131
+Node: pde-vars11049
+Node: pde-project11369
+Node: pde-abbv12087
+Node: pde-util12770
+Node: template-simple13485
+Node: tabbar-x18618
+Node: tempo-x19095
+Node: compile-dwim24456
+Node: help-dwim26225
+Node: perldoc27822
+Node: perlapi29111
+Node: windata29511
+Node: tree-mode35433
+Node: imenu-tree36860
+Node: tags-tree37941
+Node: perltidy39475
+Node: perlcritic39676
+Node: perldb-ui41472
+Node: inf-perl43782
+Node: Function Index44889
+Node: Variable Index50997
+Node: Keybinding Index53918
 
 End Tag Table
