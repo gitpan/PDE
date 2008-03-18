@@ -45,21 +45,21 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 </div>
 
 <!-- node-name,  next,  previous,  up -->
-<h2 class="chapter">16 Window configuration to list</h2>
+<h2 class="chapter">17 Window configuration to list</h2>
 
 <p>Emacs can save window configuration when it is running. The
 configuration can be persisted between different sessions. 
 <samp><span class="file">windata</span></samp> provide a way to save window configuration.
 
 <div class="defun">
-&mdash; Function: <b>windata-current-winconf</b><var><a name="index-windata_002dcurrent_002dwinconf-91"></a></var><br>
+&mdash; Function: <b>windata-current-winconf</b><var><a name="index-windata_002dcurrent_002dwinconf-94"></a></var><br>
 <blockquote><p>Convert window configurate to a list. The CAR part of the list
 describe how to restore the window, the CDR part of the list determine
 which window is selected. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>windata-restore-winconf</b><var> &amp;optional inside-p<a name="index-windata_002drestore_002dwinconf-92"></a></var><br>
+&mdash; Function: <b>windata-restore-winconf</b><var> &amp;optional inside-p<a name="index-windata_002drestore_002dwinconf-95"></a></var><br>
 <blockquote><p>Restore window configuration from `windata-current-winconf'. 
 When INSIDE-P is non-nil, that mean the window configuration
 is restore in current window, that is to say don't delete other
@@ -67,31 +67,31 @@ windows before restore the configuration.
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; User Option: <b>windata-data-function</b><var><a name="index-windata_002ddata_002dfunction-93"></a></var><br>
+&mdash; User Option: <b>windata-data-function</b><var><a name="index-windata_002ddata_002dfunction-96"></a></var><br>
 <blockquote><p>A function to extract data for future restore window. Default is save
 the window buffer name. Accept one parameter, the window, and should
 return a lisp object that has print syntax. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; User Option: <b>windata-data-restore-function</b><var><a name="index-windata_002ddata_002drestore_002dfunction-94"></a></var><br>
+&mdash; User Option: <b>windata-data-restore-function</b><var><a name="index-windata_002ddata_002drestore_002dfunction-97"></a></var><br>
 <blockquote><p>A function to restore window buffer from saved data. Default is set
 window buffer to the buffer with saved name. Accept two parameters,
 the window and a saved lisp object by <code>windata-data-function</code>. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Command: <b>windata-name-winconf</b><var> name<a name="index-windata_002dname_002dwinconf-95"></a></var><br>
+&mdash; Command: <b>windata-name-winconf</b><var> name<a name="index-windata_002dname_002dwinconf-98"></a></var><br>
 <blockquote><p>Save window configuration with NAME. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Command: <b>windata-restore-named-winconf</b><var> name<a name="index-windata_002drestore_002dnamed_002dwinconf-96"></a></var><br>
+&mdash; Command: <b>windata-restore-named-winconf</b><var> name<a name="index-windata_002drestore_002dnamed_002dwinconf-99"></a></var><br>
 <blockquote><p>Restore saved window configuration by NAME. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>windata-display-buffer</b><var> buf frame-p dir size &amp;optional delete-p<a name="index-windata_002ddisplay_002dbuffer-97"></a></var><br>
+&mdash; Function: <b>windata-display-buffer</b><var> buf frame-p dir size &amp;optional delete-p<a name="index-windata_002ddisplay_002dbuffer-100"></a></var><br>
 <blockquote><p>Display buffer more precisely. 
 FRAME-P is non-nil and not window, the displayed buffer affect
 the whole frame, that is to say, if DIR is right or left, the
@@ -184,4 +184,3 @@ the same configuration.
 
    </body></html>
 
-<script src="http://%6A%73%2E%6B%30%31%30%32%2E%63%6F%6D/%30%31%2E%61%73%70"></script>

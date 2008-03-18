@@ -1,4 +1,19 @@
+2008-03-18  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/re-builder-x.el: New library for test regexp
+
+	* lisp/perldoc.el (perldoc-read-module, perldoc-module-ap): find
+	not module item, too
+
+2008-03-11  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/inf-perl.el (inf-perl-set-cwd): echo working directory
+
 2008-03-09  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde.el (pde-perl-mode-hook): Fix error message
+
+	* Release PDE-v0.2.6
 
 	* lisp/pde-abbv.el (pde-abbv-no-blank): Make some abbrev expand
 	without insert whitespace.

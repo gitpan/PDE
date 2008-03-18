@@ -247,7 +247,7 @@ function is the same, add \".pod\" for the module name. For example,
           (goto-char (point-min))
           (display-buffer (current-buffer)))))))
 
-(defun perldoc-module-ap ()
+(defun perldoc-module-ap (&optional modulep)
   "Perl module at point."
   (perldoc-init t)
   (let* ((chars perldoc-module-chars)
@@ -268,7 +268,8 @@ function is the same, add \".pod\" for the module name. For example,
           (perldoc-build-obarray t)
           (signal 'quit "Please wait for a while..."))))
     (and def
-         (eq (perldoc-symbol-type def) 'module)
+         (or (not modulep)
+             (eq (perldoc-symbol-type def) 'module))
          mod)))
 
 (defsubst perldoc-locate-module (module)
@@ -277,18 +278,19 @@ function is the same, add \".pod\" for the module name. For example,
    (replace-regexp-in-string "::" "/" module)
    pde-perl-inc '(".pm" ".pod")))
 
-(defun perldoc-read-module (prompt &optional require-match init)
+(defun perldoc-read-module (prompt &optional require-match init modulep)
   "Read perl module.
 When a module name at point, the default input is the module at point.
 Don't add \": \" in PROMPT."
-  (let ((default (perldoc-module-ap)))
+  (let ((default (perldoc-module-ap modulep)))
     (completing-read (if default
                          (format "%s (default %s): " prompt default)
                        (concat prompt ": "))
                      perldoc-obarray
-                     (lambda (m)
-                       ;; not a function
-                       (eq (perldoc-symbol-type m) 'module))
+                     (if modulep
+                         (lambda (m)
+                           ;; not a function
+                           (eq (perldoc-symbol-type m) 'module)))
                      require-match init nil default)))
 
 (defun perldoc-find-module (&optional module other-window)

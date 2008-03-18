@@ -283,8 +283,9 @@ With prefix argument, reflesh the formated manpage."
 ;;;###autoload 
 (defun pde-perl-mode-hook ()
   "Hooks run when enter perl-mode"
-  ;; initialize with key binding and so one
+  ;; initialize with key binding and so on
   (unless pde-initialized
+    (add-hook 'imenu-tree-mode-hook 'pde-imenu-tree-hook)
     (add-to-list 'cperl-style-alist
                  '("PDE"
                    (cperl-auto-newline                         . t)

@@ -31,7 +31,7 @@ sub process_elc_files {
         next if grep { basename($el) eq $_ } @ignore;
         my $elc = $el."c";
         unless ( -e $elc && stat($elc)->mtime > stat($el)->mtime ) {
-            my $cmd = qq/emacs -q -batch --no-site-file --eval="(add-to-list 'load-path \\".\\")" -f batch-byte-compile $el/;
+            my $cmd = qq/emacs -q -batch --no-site-file --eval="(setq load-path (append load-path '(\\".\\" \\"contrib\\")))" -f batch-byte-compile $el/;
             print $cmd, "\n";
             system($cmd);
         }

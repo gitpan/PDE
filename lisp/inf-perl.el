@@ -249,7 +249,8 @@ With prefix argument, just display it."
     (with-current-buffer inf-perl-buffer
       (setq default-directory dir)
       (comint-send-string (inf-perl-proc)
-                          (concat "chdir \'" dir "\'\n")))))
+                          (format "print \"Change to %s\\n\";chdir '%s';\n"
+                                  dir dir)))))
 
 (provide 'inf-perl)
 ;;; inf-perl-mode.el ends here

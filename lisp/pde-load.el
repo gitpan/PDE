@@ -98,8 +98,8 @@
   (setq imenu-tree-auto-update t)
   (setq compilation-buffer-name-function 'pde-compilation-buffer-name)
   (add-hook 'perldoc-mode-hook 'pde-tabbar-register)
-  (add-hook 'imenu-tree-mode-hook 'pde-imenu-tree-hook)
   (autoload 'comint-dynamic-complete "comint" "Complete for file name" t)
+  (autoload 're-builder "re-builder-x" "Construct a regexp interactively." t)
   (setq comint-completion-addsuffix '("/" . ""))
   (setq tags-table-list '("./TAGS" "../TAGS" "../../TAGS"))
   (setq hippie-expand-try-functions-list
@@ -133,6 +133,7 @@
   (global-set-key "\C-ch" 'help-dwim)
   (global-set-key "\C-xan" 'tempo-forward-mark)
   (global-set-key "\C-xap" 'tempo-backward-mark)
+  (global-set-key "\C-xam" 'tempo-complete-tag)
   (global-set-key " " 'tempo-x-space)
   )
 

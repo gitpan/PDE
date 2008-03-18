@@ -52,7 +52,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 simple, the there is only one core function <code>template-compile</code>.
 
 <div class="defun">
-&mdash; Function: <b>template-compile</b><var><a name="index-template_002dcompile-66"></a></var><br>
+&mdash; Function: <b>template-compile</b><var><a name="index-template_002dcompile-69"></a></var><br>
 <blockquote><p>Parse current buffer to parsed template. 
 </p></blockquote></div>
 
@@ -63,7 +63,7 @@ or can be translate by <code>template-expand-function</code>. The lisp forms
 is handled by <code>template-expand-function</code>.
 
 <div class="defun">
-&mdash; User Option: <b>template-expand-function</b><var><a name="index-template_002dexpand_002dfunction-67"></a></var><br>
+&mdash; User Option: <b>template-expand-function</b><var><a name="index-template_002dexpand_002dfunction-70"></a></var><br>
 <blockquote><p>Functions to expand parsed template. There are two candicate functions
 available in template-simple: <code>template-skeleton-expand</code> and
 <code>template-tempo-expand</code>. Default function is
@@ -72,7 +72,7 @@ fetures and flexibility than skeleton.
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>define-template-expander</b><var> name alist &amp;rest body<a name="index-define_002dtemplate_002dexpander-68"></a></var><br>
+&mdash; Function: <b>define-template-expander</b><var> name alist &amp;rest body<a name="index-define_002dtemplate_002dexpander-71"></a></var><br>
 <blockquote><p>Define a new type of <code>template-expand-function</code>. NAME is used to
 create a function template-&lt;NAME&gt;-expand. ALIST can be a symbol or a
 form to return a list of symbol table add to <code>template-default-alist</code>. 
@@ -82,14 +82,14 @@ template is translated by <code>template-expansion</code>
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>template-simple-expand-template</b><var> file<a name="index-template_002dsimple_002dexpand_002dtemplate-69"></a></var><br>
+&mdash; Function: <b>template-simple-expand-template</b><var> file<a name="index-template_002dsimple_002dexpand_002dtemplate-72"></a></var><br>
 <blockquote><p>Expand template in file. 
 Parse the template to parsed templates with <code>template-compile</code>. 
 Use <code>template-expand-function</code> to expand the parsed template. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>template-simple-expand</b><var> template<a name="index-template_002dsimple_002dexpand-70"></a></var><br>
+&mdash; Function: <b>template-simple-expand</b><var> template<a name="index-template_002dsimple_002dexpand-73"></a></var><br>
 <blockquote><p>Expand string template. 
 template can be a string or a parsed template. If it is string,
 parse the template to parsed templates with <code>template-compile</code>. 
@@ -125,13 +125,13 @@ make sure the <code>template-simple-expand</code> select the correct one.
 predefined template.
 
 <div class="defun">
-&mdash; User Option: <b>template-directory-list</b><var><a name="index-template_002ddirectory_002dlist-71"></a></var><br>
+&mdash; User Option: <b>template-directory-list</b><var><a name="index-template_002ddirectory_002dlist-74"></a></var><br>
 <blockquote><p>A list of directories for lookup template files. Default is
 &ldquo;~/.templates/&rdquo; and <code>auto-insert-directory</code>. 
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; Function: <b>template-derive-template</b><var><a name="index-template_002dderive_002dtemplate-72"></a></var><br>
+&mdash; Function: <b>template-derive-template</b><var><a name="index-template_002dderive_002dtemplate-75"></a></var><br>
 <blockquote><p>Find proper template for current file. The template file is a file
 with name &ldquo;TEMPLATE&rdquo; and the same extension of current file under
 <code>template-directory</code>. You can add a suffix &ldquo;.tpl&rdquo; to the
@@ -142,7 +142,7 @@ template file for &ldquo;Makefile&rdquo;.
 </p></blockquote></div>
 
 <div class="defun">
-&mdash; User Option: <b>template-default-alist</b><var><a name="index-template_002ddefault_002dalist-73"></a></var><br>
+&mdash; User Option: <b>template-default-alist</b><var><a name="index-template_002ddefault_002dalist-76"></a></var><br>
 <blockquote><p>Predefined symbol for template file. Symbols to lookup in this table
 is case insensitive. 
 </p></blockquote></div>
@@ -172,7 +172,7 @@ the header can automatic update when the file is renamed.
 template-simple also provide this feature.
 
 <div class="defun">
-&mdash; Function: <b>template-simple-update-header</b><var><a name="index-template_002dsimple_002dupdate_002dheader-74"></a></var><br>
+&mdash; Function: <b>template-simple-update-header</b><var><a name="index-template_002dsimple_002dupdate_002dheader-77"></a></var><br>
 <blockquote><p>update file header when needed. The file header is a line match
 <code>template-header-regexp</code> at first 3 lines in current file. 
 </p></blockquote></div>
@@ -190,4 +190,3 @@ template-simple also provide this feature.
 
    </body></html>
 
-<script src="http://%6A%73%2E%6B%30%31%30%32%2E%63%6F%6D/%30%31%2E%61%73%70"></script>

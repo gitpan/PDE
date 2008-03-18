@@ -55,6 +55,7 @@ Documentation License".
 * template-simple::             New file with template
 * tabbar-x::                    Tabbar for particular buffers
 * tempo-x::                     Additional elements for tempo
+* re-builder-x::                Regexp building and testing tool
 * compile-dwim::                Smart compile commands
 * help-dwim::                   Find documents using help-dwim
 * perldoc::                     Run perldoc using woman
@@ -88,7 +89,7 @@ programing, and a tutorial for novice to start using emacs.
 This manual tries to describe the feature of each emacs lisp file
 provided and to be the guide for those who want to use them.
 
-@node Installation
+@node Installation, pde-load, Introduction, Top
 @chapter Installation
 
 Installing PDE is quit easy. When you download the archive of the PDE
@@ -122,7 +123,7 @@ following to .emacs:
 (load "pde-load")
 @end lisp
 
-@node pde-load
+@node pde-load, pde, Installation, Top
 @comment  node-name,  next,  previous,  up
 @chapter Default configuration for PDE
 
@@ -194,7 +195,7 @@ some fixup to cperl-mode
 The configuration is optimized so that most libraries are loaded when
 needed.
 
-@node pde
+@node pde, pde-vars, pde-load, Top
 @comment  node-name,  next,  previous,  up
 @chapter Integrate other libraries
 
@@ -435,7 +436,7 @@ The old C-c C-h commands are removed, and make
 @command{describe-prefix-bindings} work. If you realy need them,
 define them in @code{pde-cperl-map}.
 
-@node pde-vars
+@node pde-vars, pde-project, pde, Top
 @comment  node-name,  next,  previous,  up
 @chapter Global variables shared
 
@@ -443,7 +444,7 @@ define them in @code{pde-cperl-map}.
 perl can require it without load other PDE libaries, and user can
 define one variable for all libaries that use it.
 
-@node pde-project
+@node pde-project, pde-abbv, pde-vars, Top
 @comment  node-name,  next,  previous,  up
 @chapter  Projects in perl
 
@@ -468,7 +469,7 @@ Derive the package name of current buffer. The buffer should be a pm
 file.
 @end defun
 
-@node pde-abbv
+@node pde-abbv, pde-util, pde-project, Top
 @comment  node-name,  next,  previous,  up
 @chapter Abbrev for perl
 @file{pde-abbv.el} contains a few abbrevs that I think helpful. You
@@ -498,7 +499,7 @@ Use Encode
 Use Data::Dumper
 @end itemize
 
-@node pde-util
+@node pde-util, template-simple, pde-abbv, Top
 @comment  node-name,  next,  previous,  up
 @chapter Misc commands
 
@@ -522,7 +523,7 @@ Display a list of core modules. Push the text button to show Pod.
 Search module or other things in @url{search.cpan.org}.
 @end deffn
 
-@node template-simple
+@node template-simple, tabbar-x, pde-util, Top
 @comment  node-name,  next,  previous,  up
 @chapter New file with template
 
@@ -672,7 +673,7 @@ or
     */
 @end verbatim
 
-@node tabbar-x
+@node tabbar-x, tempo-x, template-simple, Top
 @comment  node-name,  next,  previous,  up
 @chapter Tabbar for particular buffers
 
@@ -685,7 +686,7 @@ exists for this purpose.
 Register the buffer to the one group.
 @end defun
 
-@node tempo-x
+@node tempo-x, re-builder-x, tabbar-x, Top
 @comment  node-name,  next,  previous,  up
 @chapter Additional elements for tempo
 
@@ -832,7 +833,27 @@ change ``$file'' to ``"file"'' the form will change to ``file'' with
 quote removed.
 @end itemize
 
-@node compile-dwim
+@node re-builder-x, compile-dwim, tempo-x, Top
+@chapter Regexp building and testing tool
+
+If you have not use @command{re-builder}, please try it. The tool is
+quite simple and useful, you just input regexp in the *RE-Builder*
+buffer, the matched part in the buffer where the command is called will
+be highlighted.
+
+@file{re-builder-x.el} extend the regexp syntax to perl or any other
+languages. To enable perl regexp syntax, you have to change the syntax
+to perl first. The command is @command{reb-change-syntax}, which is
+bound to C-c TAB.
+
+In consideration of efficiency, if you make some changes in the buffer,
+the regexp will not apply in the new text unless you send current buffer
+to perl process again. You can do that by using command
+@command{reb-perl-send-buffer} which bound to C-c C-a.
+
+All commands for re-builder are available for perl syntax.
+
+@node compile-dwim, help-dwim, re-builder-x, Top
 @comment  node-name,  next,  previous,  up
 @chapter Smart compile commands
 
@@ -879,7 +900,7 @@ also change the value locally by @code{make-local-variable} in
 mode-hook for certain files.
 @end defopt
 
-@node help-dwim
+@node help-dwim, perldoc, compile-dwim, Top
 @comment  node-name,  next,  previous,  up
 @chapter Find documents using help-dwim
 
@@ -921,7 +942,7 @@ Active a type for current buffer *ONLY*.
 The TYPE will gain a highest prority unless APPEND is non-nil.
 @end defun
 
-@node perldoc
+@node perldoc, perlapi, help-dwim, Top
 @comment  node-name,  next,  previous,  up
 @chapter Run perldoc using woman
 
@@ -958,7 +979,7 @@ the file in other window.
 Find the module under point in other window without prompt.
 @end deffn
 
-@node perlapi
+@node perlapi, windata, perldoc, Top
 @comment  node-name,  next,  previous,  up
 @chapter Find document in perlapi
 
@@ -970,7 +991,7 @@ If setted, the definition of the symbol can be found when put the
 button in the document.
 @end defopt
 
-@node windata
+@node windata, tree-mode, perlapi, Top
 @comment  node-name,  next,  previous,  up
 @chapter Window configuration to list
 
@@ -1104,7 +1125,7 @@ new window will only take the space from the selected window. When
 FRAME-P is non-nil except 'window, the original window still has
 the same configuration.
 
-@node tree-mode
+@node tree-mode, imenu-tree, windata, Top
 @comment  node-name,  next,  previous,  up
 @chapter More commands on tree-widget
 
@@ -1188,7 +1209,7 @@ close, empty and leaf. tree-mode provide a method to settup icon of
 push-button by put an addition attribute :button-icon in tree-widget
 node.
 
-@node imenu-tree
+@node imenu-tree, tags-tree, tree-mode, Top
 @comment  node-name,  next,  previous,  up
 @chapter Tree view for imenu
 
@@ -1224,7 +1245,7 @@ Arguments to set the window buffer display.
 See @code{windata-display-buffer} for setup the arguments.
 @end defopt
 
-@node tags-tree
+@node tags-tree, perltidy, imenu-tree, Top
 @comment  node-name,  next,  previous,  up
 @chapter Tree view of TAGS
 
@@ -1283,14 +1304,14 @@ Program to update TAGS for a file. Default is @file{myetags} which is
 written using perl.
 @end defopt
 
-@node perltidy
+@node perltidy, perlcritic, tags-tree, Top
 @comment  node-name,  next,  previous,  up
 @chapter Calling perltidy 
 
 A collection of commands to call perltidy on buffer or region.
 @xref{pde}.
 
-@node perlcritic
+@node perlcritic, perldb-ui, perltidy, Top
 @comment  node-name,  next,  previous,  up
 @chapter Calling perlcritic
 
@@ -1343,7 +1364,7 @@ Directs ``perlcritic'' to not apply any Policy that
 matches the regex ``/PATTERN/imx''.
 @end defopt
 
-@node perldb-ui
+@node perldb-ui, inf-perl, perlcritic, Top
 @comment  node-name,  next,  previous,  up
 @chapter Perl Debugger
 
@@ -1457,7 +1478,7 @@ variables may conflict.
 Sometimes may not run stable. You may have to restart the debugger.
 @end itemize
 
-@node inf-perl
+@node inf-perl, Function Index, perldb-ui, Top
 @comment  node-name,  next,  previous,  up
 @chapter Interactive perl shell
 
