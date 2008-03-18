@@ -36,9 +36,11 @@ lisp/doc/pde/pde_002dproject.html
 lisp/doc/pde/pde_002dutil.html
 lisp/doc/pde/pde_002dvars.html
 lisp/doc/pde/perlapi.html
+lisp/doc/pde/perlcritic.html
 lisp/doc/pde/perldb_002dui.html
 lisp/doc/pde/perldoc.html
 lisp/doc/pde/perltidy.html
+lisp/doc/pde/re_002dbuilder_002dx.html
 lisp/doc/pde/tabbar_002dx.html
 lisp/doc/pde/tags_002dtree.html
 lisp/doc/pde/template_002dsimple.html
@@ -64,6 +66,7 @@ lisp/perlcritic.el
 lisp/perldb-ui.el
 lisp/perldoc.el
 lisp/perltidy.el
+lisp/re-builder-x.el
 lisp/tabbar-x.el
 lisp/tags-tree.el
 lisp/template-simple.el

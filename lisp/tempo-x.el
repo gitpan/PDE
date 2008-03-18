@@ -380,10 +380,12 @@ changed, the text of form will change too."
     (mapc (lambda (name)
             (let ((source (tempo-x-find-source name))
                   forms)
-              (when source
-                (setq forms (overlay-get source 'tempo-x-forms))
-                (push ov forms)
-                (overlay-put source 'tempo-x-forms forms))))
+              (if source
+                  (progn
+                    (setq forms (overlay-get source 'tempo-x-forms))
+                    (push ov forms)
+                    (overlay-put source 'tempo-x-forms forms))
+                (error "Unknown form variable '%s': maybe you didn't source it yet!" name))))
           vars)
     (push ov tempo-x-snippet-forms)))
 

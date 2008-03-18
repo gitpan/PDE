@@ -1,3 +1,8 @@
+2008-03-19  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/tempo-x.el (tempo-x-insert-form): Barf when variable is not
+	source before
+
 2008-03-18  Ye Wenbin  <wenbinye@gmail.com>
 
 	* lisp/re-builder-x.el: New library for test regexp
