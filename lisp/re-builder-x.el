@@ -24,7 +24,8 @@
 
 ;;; Commentary:
 
-;; 
+;;; Bug:
+;; 1. In perl syntax, can't not input multiple characters at one time.
 
 ;; Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 're-builder-x)
@@ -364,6 +365,10 @@ If SUBEXP is non-nil mark only the corresponding sub-expressions."
         (reb-show-subexp 0 t)))))
 
 ;;; Regexp Builder for Perl
+(defvar reb-perl-coding-system-alist
+  '((utf-8 . "utf8")
+    (chinese-gbk . "gbk"))
+  "Coding system conversion between emacs and perl")
 (defvar reb-perl-process nil
   "Process of perl re-builder")
 (defvar reb-perl-buffer " reb-perl"
@@ -375,7 +380,8 @@ If SUBEXP is non-nil mark only the corresponding sub-expressions."
     map)
   "Keymap used for reb-perl-mode.")
 (defvar reb-perl-script
-  "our ( $buffer, $pattern, $str, %config );
+"use Encode qw/decode/;
+our ( $buffer, $pattern, $str, %config );
 while (<>) {
     chomp( my $cmd = $_ );
     if ( $cmd =~ '^[.] ' ) {
@@ -387,14 +393,14 @@ while (<>) {
     elsif ( $cmd =~ /set\\s+(buffer|pattern)/ ) {
         chomp($str);
         if ( $1 eq \"buffer\" ) {
-            $buffer = $str;
+            $buffer = decode($config{encoding}, $str);
         }
         else {
-            $pattern = $str;
+            $pattern = decode($config{encoding}, $str);
         }
         $str = \"\";
     }
-    elsif ( $cmd =~ /set\\s+(limit|subexp|case)\\s+(\\d+|undef)/ ) {
+    elsif ( $cmd =~ /set\\s+(limit|subexp|case|encoding)\\s+(\\w+)/ ) {
         if ( $2 eq \"undef\" ) {
             delete $config{$1};
         }
@@ -471,14 +477,17 @@ sub display_matches {
                        reb-perl-buffer
                        "perl"))
   (process-send-string reb-perl-process reb-perl-script)
-  (process-send-eof reb-perl-process))
+  (process-send-eof reb-perl-process)
+  (process-send-string reb-perl-process
+                       (format "set encoding %s\n"
+                               (assoc-default (coding-system-base (car (process-coding-system reb-perl-process))) reb-perl-coding-system-alist))))
 
 (defsubst reb-perl-clear-output ()
   (with-current-buffer (get-buffer-create reb-perl-buffer)
     (erase-buffer)))
 
 (defsubst reb-perl-literal (text)
-  (concat ". " (replace-regexp-in-string "\n" "\n. " text) "\n"))
+  (concat ". " (replace-regexp-in-string "\n" "\n. " (or text "")) "\n"))
 
 (define-derived-mode reb-perl-mode reb-mode "RE Builder Perl"
   "Major mode for interactively building symbolic Regular Expressions."

@@ -1,5 +1,8 @@
 2008-03-19  Ye Wenbin  <wenbinye@gmail.com>
 
+	* lisp/re-builder-x.el (reb-perl-start-process): coding system
+	support
+
 	* lisp/tempo-x.el (tempo-x-insert-form): Barf when variable is not
 	source before
 
