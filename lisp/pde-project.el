@@ -147,7 +147,7 @@ With prefix argument, to rebuild the cache."
   (let* ((dir (pde-detect-project-root))
          (pair (assoc dir pde-file-list-cache))
          (file-list (cdr pair)))
-    (unless (or rebuild file-list)
+    (when (or rebuild (null file-list))
       (setq file-list (pde-directory-all-files
                        dir nil
                        pde-file-list-regexp
@@ -156,10 +156,10 @@ With prefix argument, to rebuild the cache."
       (if pair
           (setcdr pair file-list)
         (push (cons dir file-list) pde-file-list-cache)))
-    (find-file (expand-file-name
-                (funcall pde-completing-read-function
-                         "Find file: " (cdr file-list) nil t)
-                dir))))
+    (let ((file (expand-file-name (ido-completing-read "Find file: " (cdr file-list) nil t) dir)))
+      (if (file-directory-p file)
+          (progn (cd file) (ido-find-file))
+        (find-file file)))))
 
 (provide 'pde-project)
 ;;; pde-project.el ends here
