@@ -7,6 +7,9 @@
 ;; Created: 8 Dec 2007
 ;; Version: 0.01
 ;; Keywords: tools
+;;
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,15 +30,16 @@
 ;; 2. File timestamp check both compiling and runing
 ;; 3. Easy for customization
 
-;;; See also:
-;; smart-compile.el by Seiji Zenitani <zenitani@mac.com>
-;; smart-compile+.el by William XWL <william.xwl@gmail.com>
+;;; Dependencies:
+;;  no extra libraries is required
 
+;;; Installation:
 ;; Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 'compile-dwim)
 
-;;; Commentary:
-;; 
+;;; See also:
+;; smart-compile.el by Seiji Zenitani <zenitani@mac.com>
+;; smart-compile+.el by William XWL <william.xwl@gmail.com>
 
 ;;; Code:
 
@@ -56,6 +60,11 @@
 
 (defvar compile-dwim-cache nil
   "Last commands selected.")
+(put 'compile-dwim-cache 'safe-local-variable 'listp)
+
+(defvar compile-dwim-cache-type nil
+  "Record which type of the compile-dwim-cache is valid.
+Its value should be 'always or list like (filename run compile).")
 
 ;;;###autoload 
 (defcustom compile-dwim-alist
@@ -64,10 +73,16 @@
           "%i -wc \"%f\"" "%i \"%f\"")
     (c    (or (name . "\\.c$")
               (mode . c-mode))
-          ("gcc -o %n %f" "gcc -g -o %n %f") ("./%n" "cint %f") "%n")
+          ("gcc -o %n %f" "gcc -g -o %n %f")
+          ,@(if (memq system-type '(windows-nt ms-dos))
+                (list "%n.exe" "%n.exe")
+              (list '("./%n" "cint %f") "%n")))
     (c++  (or (name . "\\.cpp$")
               (mode . c++-mode))
-          ("g++ -o %n %f" "g++ -g -o %n %f") "./%n" "%n")
+          ("g++ -o %n %f" "g++ -g -o %n %f")
+          ,@(if (memq system-type '(windows-nt ms-dos))
+                (list "%n.exe" "%n.exe")
+              (list '("./%n" "cint %f") "%n")))
     (java (or (name . "\\.java$")
               (mode . java-mode))
           "javac %f" "java %n" "%n.class")
@@ -184,9 +199,15 @@ that alist."
          (not (compile-dwim-match buf (cadr filters))))
         (t (not (null (compile-dwim-match-1 buf filters))))))
 
-(defun compile-dwim-calculate-command (compile-p)
+(defsubst compile-dwim-make-local-vars ()
+  (mapc (lambda (var)
+          (or (local-variable-p var)
+              (set (make-local-variable var) nil)))
+        '(compile-dwim-cache compile-dwim-cache-type)))
+
+(defun compile-dwim-calculate-command (type)
   (let ((alist compile-dwim-alist)
-        match)
+        match priority)
     (while alist
       (if (compile-dwim-match (current-buffer) (cadr (car alist)))
           (setq match (car alist)
@@ -199,12 +220,11 @@ that alist."
       (if (and (null compile-dwim-cache)
                (local-variable-p 'compile-command))
           (progn
-            (set
-             (make-local-variable 'compile-dwim-cache)
-             `((compile . ,compile-command)
-               (run . ,compile-command)))
+            (setq compile-dwim-cache
+                  `((compile . ,compile-command)
+                    (run . ,compile-command)))
             (cons (car match) (list compile-command)))
-        (let ((cmds (compile-dwim-conf (if compile-p 'compile 'run) match))
+        (let ((cmds (compile-dwim-conf type match))
               (spec (compile-dwim-spec (car match)))
               lisp-cmd)
           (setq cmds (delq nil (mapcar (lambda (cmd)
@@ -219,22 +239,36 @@ that alist."
                                            cmds (setq cmds (list cmds))))))
           (when (not lisp-cmd)
             ;; add makefile etc when compile
-            (when (and compile-p compile-dwim-check-tools)
+            (when (and (eq type 'compile) compile-dwim-check-tools)
               (cond ((or (file-readable-p "Makefile")
                          (file-readable-p "makefile"))
                      (push "make" cmds))
                     ((file-readable-p "build.xml")
                      (push "ant" cmds))))
-            ;; put history commands in compile-dwim-cache to top
-            (setq cmds (delete-dups
-                        (nconc
-                         (delq nil
-                               (mapcar (lambda (cmd)
-                                         (if (eq (car cmd)
-                                                 (if compile-p 'compile 'run))
-                                             (cdr cmd)))
-                                       compile-dwim-cache))
-                         cmds))))
+            ;; if compile-dwim-cache-type is null, and compile-dwim-cache is set,
+            ;; so it is set in file variable:
+            (cond ((null compile-dwim-cache-type)
+                   (if compile-dwim-cache
+                       (setq compile-dwim-cache-type 'always)
+                     (setq compile-dwim-cache-type (list buffer-file-name type))))
+                  ;; if file name is changed, put the cache lower priority
+                  ((listp compile-dwim-cache-type)
+                   (if (string= (car compile-dwim-cache-type) buffer-file-name)
+                       (if (memq type (cdr compile-dwim-cache-type))
+                           nil
+                         (setq priority 'lower)
+                         (setq compile-dwim-cache-type
+                               (list buffer-file-name (delete-dups (cons type (cdr compile-dwim-cache-type))))))
+                     (setq priority 'lower)
+                     (setq compile-dwim-cache-type (list buffer-file-name type)))))
+            (let ((oldcmds (delq nil
+                                 (mapcar (lambda (cmd)
+                                           (if (eq (car cmd) type)
+                                               (cdr cmd)))
+                                         compile-dwim-cache))))
+              (if (eq priority 'lower)
+                  (setq cmds (delete-dups (nconc cmds oldcmds)))
+                (setq cmds (delete-dups (nconc oldcmds cmds))))))
           (cons (car match) (or lisp-cmd cmds)))))))
 
 ;;;###autoload
@@ -242,6 +276,7 @@ that alist."
   (interactive "P")
   (if (not (buffer-file-name))
       (call-interactively 'compile)
+    (compile-dwim-make-local-vars)
     (let ((cmds (compile-dwim-calculate-command 'compile))
           match exe spec cancel)
       (if (null cmds)
@@ -252,8 +287,7 @@ that alist."
           (setq spec (compile-dwim-spec (car match))
                 exe (format-spec exe spec))
           (when (and (file-exists-p exe)
-                     (time-less-p (nth 5 (file-attributes (buffer-file-name)))
-                                  (nth 5 (file-attributes exe))))
+                     (file-newer-than-file-p (buffer-file-name) exe))
             (message "The exe file is newer! No need to compile!")
             (setq cancel t)))
         (when (not cancel)
@@ -267,7 +301,6 @@ that alist."
                   (if sentinel
                       (add-hook 'compilation-finish-functions sentinel))
                   (call-interactively 'compile)
-                  (make-local-variable 'compile-dwim-cache)
                   (add-to-list 'compile-dwim-cache
                                (cons 'compile compile-command)))
               (eval cmds)
@@ -285,7 +318,8 @@ that alist."
   (interactive)
   (if (not (buffer-file-name))
       (call-interactively 'compile)
-    (let ((cmds (compile-dwim-calculate-command nil))
+    (compile-dwim-make-local-vars)
+    (let ((cmds (compile-dwim-calculate-command 'run))
           match exe spec cancel)
       (if (null cmds)
           (call-interactively 'compile)
@@ -294,8 +328,7 @@ that alist."
           (setq spec (compile-dwim-spec (car match))
                 exe (format-spec exe spec))
           (when (and (file-exists-p exe)
-                     (time-less-p (nth 5 (file-attributes exe))
-                                  (nth 5 (file-attributes (buffer-file-name)))))
+                     (file-newer-than-file-p exe (buffer-file-name)))
             (setq cancel t)
             (when (yes-or-no-p "The exe file is expired, should we compile first? ")
               (setq compile-dwim-run-buffer (current-buffer))
@@ -309,7 +342,6 @@ that alist."
                   (setq compile-command (car cmds)
                         compile-history (nconc cmds compile-history))
                   (call-interactively 'compile)
-                  (make-local-variable 'compile-dwim-cache)
                   (add-to-list 'compile-dwim-cache
                                (cons 'run compile-command)))
               (eval cmds))))))))

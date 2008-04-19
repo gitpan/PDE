@@ -36,6 +36,7 @@ sub process_elc_files {
             system($cmd);
         }
     }
+    unlink("lisp/tools/perldoc-cache.el");
 }
 
 sub ACTION_test {

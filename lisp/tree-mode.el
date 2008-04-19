@@ -1,10 +1,12 @@
-;;; tree-mode.el --- A mode to create and manage tree widgets
+;;; tree-mode.el --- A mode to manage tree widgets
 ;; Copyright 2007 Ye Wenbin
 ;;
 ;; Author: wenbinye@163.com
 ;; Version: $Id: tree-mode.el,v 1.1.1.1 2007-03-13 13:16:10 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Keywords: help, convenience, widget
+;; 
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,10 +22,10 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-;;; Commentary:
+;;; Dependencies:
+;;  no extra libraries is required
 
-;; 
-
+;;; Installation:
 ;; Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 'tree-mode)
 
@@ -32,6 +34,8 @@
 (require 'tree-widget)
 (eval-when-compile
   (require 'cl))
+
+(defvar tree-mode-version "1.0")
 
 (defvar tree-mode-list nil)
 
@@ -59,6 +63,28 @@
       (define-key map `[,(+ ?0 i)] 'digit-argument))
     map))
 
+(defvar tree-mode-menu nil)
+(unless tree-mode-menu
+  (easy-menu-define
+    tree-mode-menu tree-mode-map "Tree menu"
+    '("Tree"
+      ["Next tree node" tree-mode-next-node t]
+      ["Previous tree node" tree-mode-previous-node t]
+      ["Next sibling node" tree-mode-next-sib t]
+      ["Previous sibling node" tree-mode-previous-sib t]
+      ["Goto parent node" tree-mode-goto-parent t]
+      ["Goto root node" tree-mode-goto-root t]
+      "--"
+      ["Toggle Expand" tree-mode-toggle-expand t]
+      ["Expand to level 1" (lambda () (interactive)
+                             (tree-mode-expand-level 1)) t]
+      ["Expand to level 2" (lambda () (interactive)
+                             (tree-mode-expand-level 2)) t]
+      "--"
+      ["Collapse other tree" tree-mode-collapse-other-except t]
+      ["Sort by tag" tree-mode-sort-by-tag t]
+      ["Keep match" tree-mode-keep-match t])))
+
 (defvar tree-mode-insert-tree-hook nil
   "Hooks run after insert a tree into buffer. Each function is
 passed the new tree created")
@@ -71,8 +97,10 @@ passed the new tree created")
   "Return widget at point or next nearest widget."
   (or (widget-at)
       (ignore-errors
-        (widget-forward 1)
-        (widget-at))))
+        (let ((pos (point)))
+          (widget-forward 1)
+          (and (< pos (point))
+               (widget-at))))))
 
 (defun tree-mode-scan-tree ()
   "Find all tree widget in current buffer."
@@ -165,7 +193,14 @@ TREE will insert at position of BEFORE."
 
 (defun tree-mode-button-current-line ()
   "Return the push button in current line."
-  (widget-at (1- (line-end-position))))
+  (save-excursion
+    (let ((pos (line-beginning-position))
+          but)
+      (goto-char (line-end-position))
+      (while (and (not but) (> (point) pos))
+        (setq but (get-char-property (point) 'button))
+        (backward-char 1))
+      but)))
 
 (defun tree-mode-parent-current-line ()
   "If current line is root line, return the root tree, otherwise
@@ -303,7 +338,9 @@ Otherwise use :old-args which saved by `tree-mode-backup-args'."
 
 (defun tree-mode-find-node (tree path)
   "Find node by path.
-PATH is a tag list to search from root.
+Return a cons cell (NODE . REST). Check the rest to find if the node
+is node of the full path. 
+PATH is a list of node tag to search from root.
 Note if the tree is not opened, It will open some node when need.
 `set-buffer' to tree buffer before call this function."
   (when (and (tree-widget-p tree) path)
@@ -483,59 +520,6 @@ expand all leaves of the tree."
       (if (yes-or-no-p "Delete current tree? ")
           (tree-mode-delete (tree-mode-tree-ap)))
     (message "No tree at point!")))
-;;}}}
-
-;;{{{  Isearch
-;; (defvar tree-mode-isearch-string-function 'identity
-;;   "Modify isearch-string when call `isearch'")
-
-;; (defadvice isearch-search (around tree-mode-isearch)
-;;   (let ((isearch-regexp t)
-;;         (isearch-string (funcall tree-mode-isearch-string-function
-;;                                  isearch-string)))
-;;     ad-do-it))
-
-;; (defun tree-mode-search (forward)
-;;   (let ((actp (ad-is-active 'isearch-search)))
-;;     (or actp
-;;         (ad-activate 'isearch-search))
-;;     (ad-enable-advice 'isearch-search 'around 'tree-mode-isearch)
-;;     (if forward
-;;         (isearch-forward)
-;;       (isearch-backward))
-;;     (ad-disable-advice 'isearch-search 'around 'tree-mode-isearch)
-;;     (and actp
-;;          (ad-deactivate 'isearch-search))))
-
-;; (defun tree-mode-isearch-string (str)
-;;   (concat "^\\s-*"
-;;           "\\(|\\s-+\\)*"
-;;           (regexp-opt
-;;            '("|-" "`-") t)
-;;           (regexp-opt
-;;            '("[-]"
-;;              "[+]"
-;;              " ") t)
-;;           " " (regexp-quote str)))
-
-;; (defun tree-mode-isearch-forward (arg)
-;;   "Search forward which match from the beginning of line.
-;; With prefix argument, using `isearch-forward'."
-;;   (interactive "P")
-;;   (let ((tree-mode-isearch-string-function
-;;          (if arg
-;;              tree-mode-isearch-string-function
-;;            'tree-mode-isearch-string)))
-;;     (tree-mode-search t)))
-;; (defun tree-mode-isearch-backward (arg)
-;;   "Search backward which match from the beginning of line.
-;; With prefix argument, using `isearch-backward'."
-;;   (interactive "P")
-;;   (let ((tree-mode-isearch-string-function
-;;          (if arg
-;;              tree-mode-isearch-string-function
-;;            'tree-mode-isearch-string)))
-;;     (tree-mode-search nil)))
 ;;}}}
 
 (provide 'tree-mode)

@@ -1,3 +1,21 @@
+2008-04-19  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-project.el (pde-project-find-file): New command to find
+	file in current project. 
+
+2008-04-13  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/compile-dwim.el (compile-dwim-alist): Make win32 happy.
+
+	* lisp/tree-mode.el (tree-mode-button-current-line): fixed it
+
+2008-04-01  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/compile-dwim.el (compile-dwim-calculate-command): Test
+	whether current file name is changed when generate new commands.
+	(compile-dwim-calculate-command): Make compile-dwim recache when
+	change file name
+
 2008-03-19  Ye Wenbin  <wenbinye@gmail.com>
 
 	* lisp/re-builder-x.el (reb-perl-start-process): coding system

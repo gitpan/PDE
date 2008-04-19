@@ -473,7 +473,7 @@ file.
 @comment  node-name,  next,  previous,  up
 @chapter Abbrev for perl
 @file{pde-abbv.el} contains a few abbrevs that I think helpful. You
-can send me you abbrev if you think it is handy. I appreciate for
+can send me your abbrev if you think it is handy. I appreciate for
 that.
 
 @itemize

@@ -1,10 +1,12 @@
-;;; inf-perl.el --- Perl
+;;; inf-perl.el --- Run Inferior Perl process
 
 ;; Copyright 2005 Wenbin Ye
 ;;
 ;; Author: Ye Wenbin <wenbinye@gmail.com>
 ;; Version: 0.01
 ;; Keywords: tools, processes
+;; 
+;; This file is part of PDE (Perl Development Environment).
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,14 +22,11 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-;;; Commentary:
+;;; Dependencies:
+;; pde-vars.el
 
-;;    This is a customisation of comint-mode (see comint.el)
-
-;; Put this file into your load-path and the following into your ~/.emacs:
-;;   (require 'inf-perl-mode)
-;;   In windows expand-file-name is require because perl don't where is ~/psh.pl
-;;   (setq perl-shell-program (expand-file-name "~/psh.pl"))
+;; Installation:
+;;  Please install with PDE.
 
 ;;; Code:
 

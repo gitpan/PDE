@@ -118,7 +118,8 @@ The group name set in a list to distinct with tags name.
                   "\\([ \t\n]\\|\\\\\n\\)*(") 1)))))
 
 (defvar tags-tree-tags-update-program
-  (expand-file-name "myetags" pde-load-path)
+  (expand-file-name "myetags"
+                    (concat (file-name-as-directory pde-load-path) "tools"))
   "*Program to update TAGS for current file.")
 
 ;;}}}

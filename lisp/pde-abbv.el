@@ -199,7 +199,7 @@ GetOptions();" pde-abbv-no-blank 0)))
   
 (tempo-define-template
  "filevar"
- '((pi "Prefix: " comment-start prefix) "Local Variables: ***\n"
+ '((pi "Prefix: " comment-start prefix) "Local Variables: " "***\n"
    (R (s prefix)
       (pi ("Variable: " ("mode" "coding")) nil var)
       (& var (delete-region recursion-start (point)))

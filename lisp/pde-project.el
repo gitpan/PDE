@@ -35,12 +35,33 @@
   (require 'cl))
 (require 'pde-vars)
 
+(defgroup pde-project nil
+  "Pde project"
+  :group 'pde)
+
 (defcustom pde-project-mark-files '("Makefile.PL" "Build.PL")
   "*The files tell the current directory should be project root."
   :type '(repeat string)
-  :group 'pde)
+  :group 'pde-project)
+
+(defcustom pde-file-list-regexp "^[^._#]"
+  "Filenames matching this regexp will not be read when `pde-project-find-file'."
+  :type 'regexp
+  :group 'pde-project)
+
+(defcustom pde-file-list-predicate-function nil
+  "Predicate function to filter file to be read when `pde-project-find-file'."
+  :type 'function
+  :group 'pde-project)
+
+(defcustom pde-file-list-limit 200
+  "Maximum number of files for read from project directory recursively."
+  :type 'integer
+  :group 'pde-project)
 
 (defvar pde-project-root nil)
+(defvar pde-file-list-cache nil
+  "")
 
 (defun pde-detect-project-root ()
   (let ((dir (expand-file-name default-directory))
@@ -63,7 +84,8 @@
                    nil)
                   ;; otherwise goes up
                   (t (setq dir (file-name-directory (directory-file-name dir))))))))
-    (or found default-directory)))
+    (or found
+        (file-name-as-directory default-directory))))
 
 (defun pde-set-project-root ()
   (unless pde-project-root
@@ -83,6 +105,58 @@
       (replace-regexp-in-string
        "/" "::"
        (replace-regexp-in-string "\\.\\(pm\\|pod\\)" "" package)))))
+
+(defun pde-directory-all-files (dir &optional full match predicate limit)
+  "Recursive read file name in DIR.
+Like `directory-files', if FULL is non-nil, return absolute file
+names, if match is non-nil, mention only file names match the
+regexp MATCH. If PREDICATE is non-nil and is a function with one
+argument, the file name relative to DIR, mention only file when
+PREDICATE function return non-nil value. If LIMIT is non-nil,
+when the files execeed the number will stop. The function is
+search in wide-first manner."
+  (let ((default-directory (file-name-as-directory dir)))
+    (setq limit (or limit most-positive-fixnum))
+    (let ((queue (list ""))
+          (i 0)
+          list)
+      (while (and queue (< i limit))
+        (setq dir (pop queue))
+        (dolist (file (directory-files dir nil match))
+          (unless (or (string= file ".") (string= file ".."))
+            (setq file (concat dir file))
+            (when (or (null predicate) (funcall predicate file))
+              (incf i)
+              (when (file-directory-p file)
+                (setq file (file-name-as-directory file))
+                (push file queue))
+              (push file list)))))
+      (if full
+          (mapcar 'expand-file-name list)
+        list))))
+
+;;;###autoload 
+(defun pde-project-find-file (&optional rebuild)
+  "Find file in the project.
+This command is will read all file in current project recursively.
+With prefix argument, to rebuild the cache."
+  (interactive "P")
+  (let* ((dir (pde-detect-project-root))
+         (pair (assoc dir pde-file-list-cache))
+         (file-list (cdr pair)))
+    (unless (or rebuild file-list)
+      (setq file-list (pde-directory-all-files
+                       dir nil
+                       pde-file-list-regexp
+                       pde-file-list-predicate-function
+                       pde-file-list-limit))
+      (if pair
+          (setcdr pair file-list)
+        (push (cons dir file-list) pde-file-list-cache)))
+    (find-file (expand-file-name
+                (funcall pde-completing-read-function
+                         "Find file: " (cdr file-list) nil t)
+                dir))))
 
 (provide 'pde-project)
 ;;; pde-project.el ends here

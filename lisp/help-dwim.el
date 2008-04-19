@@ -4,8 +4,10 @@
 ;;
 ;; Author: wenbinye@gmail.com
 ;; Version: $Id: help-dwim.el,v 0.0 2007/08/22 06:35:00 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Keywords: help, convenience
+;; 
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,6 +33,10 @@
 ;;  woman-file-name which will prompt for the file name. So you
 ;;  may have to M-x woman before active woman.
 
+;;; Dependencies:
+;;  no extra libraries is required
+
+;;; Installation:
 ;; Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 'help-dwim)
 ;;   
@@ -38,7 +44,8 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'cl))
+  (require 'cl)
+  (require 'woman))
 
 (defgroup help-dwim nil
   "Show help information from different source."
@@ -131,7 +138,7 @@ The order of this list is important for the default behavior of
             (when (setq thing (funcall chars))
               (if (stringp thing)
                   (setq thing (intern-soft thing (help-dwim-obarray type))))
-              (and (symbolp thing)
+              (and thing (symbolp thing)
                    (push (cons (help-dwim-type type) thing) things)))
           (skip-chars-forward chars)
           (setq thing (buffer-substring

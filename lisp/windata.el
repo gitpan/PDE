@@ -4,8 +4,10 @@
 ;;
 ;; Author: wenbinye@gmail.com
 ;; Version: $Id: windata.el,v 0.0 2007/12/13 00:32:15 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Keywords: convenience, frames
+;; 
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,8 +28,15 @@
 ;; between emacs sessions or for emacs lisp programer who want handle
 ;; window layout.
 
+;;; Dependencies:
+;;  no extra libraries is required
+
 ;; Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 'windata)
+;; You can use desktop to save window configuration between different
+;; session:
+;;   (require 'desktop)
+;;   (add-to-list 'desktop-globals-to-save 'windata-named-winconf)
 
 ;;; Code:
 

@@ -319,7 +319,8 @@ With prefix argument, reflesh the formated manpage."
                  ["Perltidy Region" perltidy-region t]
                  ["Perltidy Buffer" perltidy-buffer t]
                  ["Perltidy Sub" perltidy-subroutine t])
-                ["List core modules" pde-list-core-modules t])))
+                ["List core modules" pde-list-core-modules t]
+                ["Apropos module" pde-apropos-module t])))
       (define-key map pde-cperl-prefix pde-cperl-map)
       (define-key map pde-perltidy-prefix pde-perltidy-map)
       (define-key map pde-inf-perl-prefix pde-inf-perl-map)

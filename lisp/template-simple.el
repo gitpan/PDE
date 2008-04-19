@@ -7,6 +7,9 @@
 ;; Created: 21 Dec 2007
 ;; Version: 0.01
 ;; Keywords: tools, convenience
+;; 
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -53,6 +56,9 @@
 ;;
 ;;   The template is expand by template-tempo-expand and use {} as paren inside
 ;;   template string.
+
+;;; Dependencies:
+;;  no extra libraries is required
 
 ;;; Installation:
 ;; Put this file into your load-path and the following into your ~/.emacs:

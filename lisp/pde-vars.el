@@ -48,6 +48,19 @@
   :type 'string
   :group 'pde)
 
+(defcustom pde-find-program "find"
+  "Name of GNU find program"
+  :type 'string
+  :group 'pde)
+
+(defcustom pde-completing-read-function
+  (if (featurep 'ido)
+      'ido-completing-read
+    'completing-read)
+  "Function to call in minibuffer completion."
+  :type 'function
+  :group 'pde)
+
 (defcustom pde-load-path (file-name-directory load-file-name)
   "*Directory name of pde"
   :type 'directory

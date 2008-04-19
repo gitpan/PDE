@@ -4,8 +4,10 @@
 ;;
 ;; Author: wenbinye@163.com
 ;; Version: $Id: imenu-tree.el,v 1.1.1.1 2007-03-13 13:16:10 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Keywords: help, convenience
+;; 
+;; This file is part of PDE (Perl Development Environment).
+;; But it is useful for generic programming.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,11 +23,16 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-;;; Commentary:
+;;; Dependencies:
+;; windata.el   -- http://www.emacswiki.org/cgi-bin/wiki/windata.el
+;; tree-mode.el -- http://www.emacswiki.org/cgi-bin/wiki/tree-mode.el
 
+;;; Installation:
+;; 1. Download Icons from http://www.emacswiki.org/cgi-bin/wiki/ImenuTreeIcons
+;; and rename the file with suffix .tar.gz to extract it property.
+;; Put the `tree-widget' directory to load-path.
 ;; 
-
-;; Put this file into your load-path and the following into your ~/.emacs:
+;; 2. Put this file into your load-path and the following into your ~/.emacs:
 ;;   (require 'imenu-tree)
 
 ;;; Code:
