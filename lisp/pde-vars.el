@@ -33,6 +33,11 @@
 (defvar pde-version "0.2.6"
   "Version of PDE")
 
+(defgroup pde nil
+  "Perl Development Environment"
+  :group 'languages
+  :prefix "pde-")
+
 (defcustom pde-perl-program "perl"
   "*Name of perl"
   :type 'string
@@ -53,10 +58,7 @@
   :type 'string
   :group 'pde)
 
-(defcustom pde-completing-read-function
-  (if (featurep 'ido)
-      'ido-completing-read
-    'completing-read)
+(defcustom pde-completing-read-function 'ido-completing-read
   "Function to call in minibuffer completion."
   :type 'function
   :group 'pde)

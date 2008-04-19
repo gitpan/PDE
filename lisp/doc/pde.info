@@ -390,6 +390,44 @@ File: pde.info,  Node: pde-project,  Next: pde-abbv,  Prev: pde-vars,  Up: Top
      Derive the package name of current buffer. The buffer should be
      a pm file.
 
+ -- Function: pde-directory-all-files dir &optional full match
+          predicate limit
+     Recursive read file name in DIR.  Like `directory-files', this
+     function can return a list of files in the directory and the
+     subdirectories, but often there are too many files in the
+     directory, so need a parament to limit the number of files to
+     search and a flag to indicate whether all files are read. So
+     instead of return a list of files, this function return a cons
+     cell which car indicate whether all files read and cdr part is
+     the real file list.
+
+     if FULL is non-nil, return absolute file names, if match is
+     non-nil, mention only file names match the regexp MATCH. If
+     PREDICATE is non-nil and is a function with one argument, the
+     file name relative to DIR, mention only file when PREDICATE
+     function return non-nil value. If LIMIT is non-nil, when the
+     files execeed the number will stop. The function is search in
+     wide-first manner.
+
+      -- Command: pde-project-find-file
+          Find file in the project.  This command is will read all
+          file in current project recursively.  With prefix argument,
+          to rebuild the cache.  I suggest bind this command to C-x
+          C-p, which original command is mark-page seldom used by me.
+
+      -- User Option: pde-file-list-regexp
+          Filenames matching this regexp will not be read when
+          `pde-project-find-file'.
+
+      -- User Option: pde-file-list-predicate-function
+          Predicate function to filter file to be read when
+          `pde-project-find-file'
+
+      -- User Option: pde-file-list-limit
+          Maximum number of files for read from project directory
+          recursively.
+
+
 
 File: pde.info,  Node: pde-abbv,  Next: pde-util,  Prev: pde-project,  Up: Top
 
@@ -1352,6 +1390,7 @@ Function Index
 * inf-perl-switch-to-end-perl:           pde.               (line 120)
 * inf-perl-switch-to-perl:               pde.               (line 117)
 * pde-detect-project-root:               pde-project.       (line   9)
+* pde-directory-all-files:               pde-project.       (line  25)
 * pde-ffap-locate:                       pde.               (line 136)
 * pde-file-package:                      pde-project.       (line  20)
 * pde-imenu-tree:                        pde.               (line  57)
@@ -1361,6 +1400,7 @@ Function Index
 * pde-perl-mode-hook:                    pde.               (line 152)
 * pde-perldoc-tree:                      pde.               (line  63)
 * pde-pod-to-manpage:                    pde.               (line  60)
+* pde-project-find-file:                 pde-project.       (line  43)
 * pde-search-cpan:                       pde-util.          (line  20)
 * pde-set-project-root:                  pde-project.       (line  17)
 * pde-tabbar-register:                   pde.               (line 130)
@@ -1435,6 +1475,9 @@ Variable Index
 * pde-cperl-map:                         pde.                (line 16)
 * pde-cperl-prefix:                      pde.                (line 13)
 * pde-extra-setting:                     pde-load.           (line 12)
+* pde-file-list-limit:                   pde-project.        (line 57)
+* pde-file-list-predicate-function:      pde-project.        (line 53)
+* pde-file-list-regexp:                  pde-project.        (line 49)
 * pde-inf-perl-map:                      pde.                (line 93)
 * pde-inf-perl-prefix:                   pde.                (line 90)
 * pde-module-location:                   pde-util.           (line  9)
@@ -1534,26 +1577,26 @@ Node: pde-load4298
 Node: pde6196
 Node: pde-vars11114
 Node: pde-project11434
-Node: pde-abbv12152
-Node: pde-util12836
-Node: template-simple13551
-Node: tabbar-x18684
-Node: tempo-x19161
-Node: re-builder-x24522
-Node: compile-dwim25430
-Node: help-dwim27204
-Node: perldoc28801
-Node: perlapi30090
-Node: windata30490
-Node: tree-mode36412
-Node: imenu-tree37839
-Node: tags-tree38920
-Node: perltidy40454
-Node: perlcritic40655
-Node: perldb-ui42451
-Node: inf-perl44761
-Node: Function Index45868
-Node: Variable Index51976
-Node: Keybinding Index54897
+Node: pde-abbv13894
+Node: pde-util14578
+Node: template-simple15293
+Node: tabbar-x20426
+Node: tempo-x20903
+Node: re-builder-x26264
+Node: compile-dwim27172
+Node: help-dwim28946
+Node: perldoc30543
+Node: perlapi31832
+Node: windata32232
+Node: tree-mode38154
+Node: imenu-tree39581
+Node: tags-tree40662
+Node: perltidy42196
+Node: perlcritic42397
+Node: perldb-ui44193
+Node: inf-perl46503
+Node: Function Index47610
+Node: Variable Index53860
+Node: Keybinding Index56994
 
 End Tag Table

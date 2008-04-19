@@ -1,7 +1,7 @@
 2008-04-19  Ye Wenbin  <wenbinye@gmail.com>
 
 	* lisp/pde-project.el (pde-project-find-file): New command to find
-	file in current project. 
+	file in current project.
 
 2008-04-13  Ye Wenbin  <wenbinye@gmail.com>
 

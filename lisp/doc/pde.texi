@@ -446,7 +446,7 @@ define one variable for all libaries that use it.
 
 @node pde-project, pde-abbv, pde-vars, Top
 @comment  node-name,  next,  previous,  up
-@chapter  Projects in perl
+@chapter Projects in perl
 
 @file{pde-project.el} provide several functions relate to project in perl.
 
@@ -467,6 +467,44 @@ set project root to local variable @code{pde-project-root}.
 @defun pde-file-package
 Derive the package name of current buffer. The buffer should be a pm
 file.
+@end defun
+
+@defun pde-directory-all-files dir &optional full match predicate limit
+Recursive read file name in DIR.
+Like `directory-files', this function can return a list of files in
+the directory and the subdirectories, but often there are too many files
+in the directory, so need a parament to limit the number of files to
+search and a flag to indicate whether all files are read. So instead
+of return a list of files, this function return a cons cell which car
+indicate whether all files read and cdr part is the real file list.
+
+if FULL is non-nil, return absolute file names, if match is non-nil,
+mention only file names match the regexp MATCH. If PREDICATE is non-nil
+and is a function with one argument, the file name relative to DIR,
+mention only file when PREDICATE function return non-nil value. If LIMIT
+is non-nil, when the files execeed the number will stop. The function is
+search in wide-first manner.
+
+@deffn Command pde-project-find-file 
+Find file in the project.
+This command is will read all file in current project recursively.
+With prefix argument, to rebuild the cache.
+I suggest bind this command to C-x C-p, which original command is 
+mark-page seldom used by me.
+@end deffn
+
+@defopt pde-file-list-regexp
+Filenames matching this regexp will not be read when `pde-project-find-file'.
+@end defopt
+
+@defopt pde-file-list-predicate-function
+Predicate function to filter file to be read when `pde-project-find-file'
+@end defopt
+
+@defopt pde-file-list-limit
+Maximum number of files for read from project directory recursively.
+@end defopt
+
 @end defun
 
 @node pde-abbv, pde-util, pde-project, Top

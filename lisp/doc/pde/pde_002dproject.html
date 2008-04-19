@@ -73,5 +73,48 @@ Default is (&ldquo;Makefile.PL&rdquo; &ldquo;Build.PL&rdquo;)
 file. 
 </p></blockquote></div>
 
+<div class="defun">
+&mdash; Function: <b>pde-directory-all-files</b><var> dir &amp;optional full match predicate limit<a name="index-pde_002ddirectory_002dall_002dfiles-65"></a></var><br>
+<blockquote><p>Recursive read file name in DIR. 
+Like `directory-files', this function can return a list of files in
+the directory and the subdirectories, but often there are too many files
+in the directory, so need a parament to limit the number of files to
+search and a flag to indicate whether all files are read. So instead
+of return a list of files, this function return a cons cell which car
+indicate whether all files read and cdr part is the real file list.
+
+        <p>if FULL is non-nil, return absolute file names, if match is non-nil,
+mention only file names match the regexp MATCH. If PREDICATE is non-nil
+and is a function with one argument, the file name relative to DIR,
+mention only file when PREDICATE function return non-nil value. If LIMIT
+is non-nil, when the files execeed the number will stop. The function is
+search in wide-first manner.
+
+     <div class="defun">
+&mdash; Command: <b>pde-project-find-file</b><var><a name="index-pde_002dproject_002dfind_002dfile-66"></a></var><br>
+<blockquote><p>Find file in the project. 
+This command is will read all file in current project recursively. 
+With prefix argument, to rebuild the cache. 
+I suggest bind this command to C-x C-p, which original command is
+mark-page seldom used by me. 
+</p></blockquote></div>
+
+     <div class="defun">
+&mdash; User Option: <b>pde-file-list-regexp</b><var><a name="index-pde_002dfile_002dlist_002dregexp-67"></a></var><br>
+<blockquote><p>Filenames matching this regexp will not be read when `pde-project-find-file'. 
+</p></blockquote></div>
+
+     <div class="defun">
+&mdash; User Option: <b>pde-file-list-predicate-function</b><var><a name="index-pde_002dfile_002dlist_002dpredicate_002dfunction-68"></a></var><br>
+<blockquote><p>Predicate function to filter file to be read when `pde-project-find-file'
+</p></blockquote></div>
+
+     <div class="defun">
+&mdash; User Option: <b>pde-file-list-limit</b><var><a name="index-pde_002dfile_002dlist_002dlimit-69"></a></var><br>
+<blockquote><p>Maximum number of files for read from project directory recursively. 
+</p></blockquote></div>
+
+        </blockquote></div>
+
    </body></html>
 

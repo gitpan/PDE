@@ -108,6 +108,9 @@
 
 (defun pde-directory-all-files (dir &optional full match predicate limit)
   "Recursive read file name in DIR.
+Return a cons cell which car indicate whether all files read
+and cdr part is the real file list.
+
 Like `directory-files', if FULL is non-nil, return absolute file
 names, if match is non-nil, mention only file names match the
 regexp MATCH. If PREDICATE is non-nil and is a function with one
@@ -119,8 +122,9 @@ search in wide-first manner."
     (setq limit (or limit most-positive-fixnum))
     (let ((queue (list ""))
           (i 0)
+          (finished t)
           list)
-      (while (and queue (< i limit))
+      (while (and queue (or (< i limit) (setq finished nil)))
         (setq dir (pop queue))
         (dolist (file (directory-files dir nil match))
           (unless (or (string= file ".") (string= file ".."))
@@ -131,9 +135,8 @@ search in wide-first manner."
                 (setq file (file-name-as-directory file))
                 (push file queue))
               (push file list)))))
-      (if full
-          (mapcar 'expand-file-name list)
-        list))))
+      (cons finished
+            (nreverse (if full (mapcar 'expand-file-name list) list))))))
 
 ;;;###autoload 
 (defun pde-project-find-file (&optional rebuild)
