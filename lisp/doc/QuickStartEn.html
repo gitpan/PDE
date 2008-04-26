@@ -4,7 +4,7 @@
     <title>Beginning Perl Programing with Emacs</title>
     <meta name="generator" content="muse.el">
     <meta http-equiv="Content-Type"
-          content="text/html; charset=iso-8859-1">
+          content="text/html; charset=utf-8">
     <link rev="made" href="Ye Wenbin"><link rel="stylesheet" type="text/css" charset="utf-8" media="all" href="css/asciidoc.css" />
   </head>
   <body>
@@ -31,7 +31,7 @@
 <dd>
 <dl>
 <dt>
-<a href="#sec5">Configuration in .emacs2</a>
+<a href="#sec5">Configuration in .emacs<sup>2</sup></a>
 </dt>
 <dt>
 <a href="#sec6">Commands</a>
@@ -57,7 +57,7 @@
 <dd>
 <dl>
 <dt>
-<a href="#sec11">Configuration in .emacs3</a>
+<a href="#sec11">Configuration in .emacs<sup>3</sup></a>
 </dt>
 <dt>
 <a href="#sec12">Commands</a>
@@ -125,17 +125,19 @@ completion style is like in shell. But it is not so convenient. Emacs
 privodes a good completion way, <code>ido-mode</code>. When ido-mode turns on, you
 can open file as following:</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-1.png" alt="Ido 1"></td></tr>
-  <tr><td align="center" class="image-caption">Ido 1</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-1.png" alt="Ido 1"/>	</div>
+		<p>Ido 1</p>
+	</div>
 
 <p>When input something, the completion becomes:</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-2.png" alt="Ido 2"></td></tr>
-  <tr><td align="center" class="image-caption">Ido 2</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-2.png" alt="Ido 2"/>	</div>
+		<p>Ido 2</p>
+	</div>
 
 <p>Ido completion does not require complete from beginning, and you can
 complete with regexp. The completion manner is highly customizable.</p>
@@ -147,10 +149,11 @@ switching between buffers, or for looking up tags in imenu and so on.</p>
 prompted whether using template:</p>
 
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/newfile.png" alt="New file with template"></td></tr>
-  <tr><td align="center" class="image-caption">New file with template</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/newfile.png" alt="New file with template"/>	</div>
+		<p>New file with template</p>
+	</div>
 
 <p>After open the file, you can begin coding.</p>
 
@@ -176,7 +179,7 @@ Commands</h3>
 <h2><a name="sec4" id="sec4"></a>
 Editing</h2>
 
-<p><code>cperl-mode</code> provides a excellent environment for perl programming. With
+<p><code>cperl-mode</code> provides an excellent environment for perl programming. With
 a good style, the indentation is fine. I recommend the setting in PBP.</p>
 
 <p>If you want reindent the code, using M-x <code>indent-region</code> when region is
@@ -357,17 +360,19 @@ current file. More commands can be found in the menu &lt;Perl&gt; &lt;Tools&gt;
 figure). But it may complain for error if you set <code>tags-table-list</code>.
 You can press &quot;++UPDATE++&quot; if you change TAGS files.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/tags-hier.png" alt="Class Hierarchy from TAGS"></td></tr>
-  <tr><td align="center" class="image-caption">Class Hierarchy from TAGS</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/tags-hier.png" alt="Class Hierarchy from TAGS"/>	</div>
+		<p>Class Hierarchy from TAGS</p>
+	</div>
 
 <p>PDE provides a similar tool <code>tags-tree</code>.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/tags-tree.png" alt="TAGS Tree"></td></tr>
-  <tr><td align="center" class="image-caption">TAGS Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/tags-tree.png" alt="TAGS Tree"/>	</div>
+		<p>TAGS Tree</p>
+	</div>
 
 <p>In my opinion, it is more efficient to use <code>find-tag</code> than using such
 tool.</p>
@@ -375,17 +380,19 @@ tool.</p>
 <p>If you just want jump in current file, imenu is the best choice. Using
 it with ido-mode will be more convenient:</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-imenu.png" alt="Ido Imenu"></td></tr>
-  <tr><td align="center" class="image-caption">Ido Imenu</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-imenu.png" alt="Ido Imenu"/>	</div>
+		<p>Ido Imenu</p>
+	</div>
 
 <p>PDE provides imenu-tree for view imenu tags in tree view.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/imenu-tree.png" alt="Imenu Tree"></td></tr>
-  <tr><td align="center" class="image-caption">Imenu Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/imenu-tree.png" alt="Imenu Tree"/>	</div>
+		<p>Imenu Tree</p>
+	</div>
 
 <p>All this is not done with semantic analysis, so if you want browsing
 standard libraries, you have to create TAGS or open the file directly
@@ -403,19 +410,21 @@ need a special command for find perl module, you can use
 cperl-mode is using <code>ffap</code>. It is a useful command and worth of
 assigning a global key.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/pcomplete.png" alt="PC include file complete"></td></tr>
-  <tr><td align="center" class="image-caption">PC include file complete</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/pcomplete.png" alt="PC include file complete"/>	</div>
+		<p>PC include file complete</p>
+	</div>
 
 <p>Another topic in code navigation is code folding. One of most useful
 text fold extension in Emacs is outline. cperl-mode support
 <code>outline-minor-mode</code>.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/outline.png" alt="Fold subroutines in outline-minor-mode"></td></tr>
-  <tr><td align="center" class="image-caption">Fold subroutines in outline-minor-mode</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/outline.png" alt="Fold subroutines in outline-minor-mode"/>	</div>
+		<p>Fold subroutines in outline-minor-mode</p>
+	</div>
 
 <p>hideshow is another extension for code folding. The feature of
 hideshow is it base of blocks, so blank lines will be not fold. The
@@ -494,10 +503,11 @@ variable, manpage, perldoc, perlapi and so on. <code>perldoc-tree</code> also
 provide tree view for modules. You can view module pod or open the
 module file here.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/perldoc-tree.png" alt="Perldoc Tree"></td></tr>
-  <tr><td align="center" class="image-caption">Perldoc Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/perldoc-tree.png" alt="Perldoc Tree"/>	</div>
+		<p>Perldoc Tree</p>
+	</div>
 
 <p>Emacs provides eldoc to displays information about a function or
 variable in the text where point is in the echo area. cperl-mode
@@ -535,10 +545,11 @@ building blocks. `perl -de 1' is good candicate for interactive shell.
 But PDE provides another interactive shell for easy customization and
 extending, and echo result of eval.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/inf-perl.png" alt="Interactive perl shell"></td></tr>
-  <tr><td align="center" class="image-caption">Interactive perl shell</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/inf-perl.png" alt="Interactive perl shell"/>	</div>
+		<p>Interactive perl shell</p>
+	</div>
 
 <p>You can use <code>inf-perl-send</code> to send current line when editing, or send a
 region with the same command after finish a block. It is convenient to
@@ -579,10 +590,11 @@ Debugger</h2>
 gdb-ui. PDE provides a similar interface like gdb-ui. But it is known
 not stable. You may have a try.</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/perldb.png" alt="Perl Debugger"></td></tr>
-  <tr><td align="center" class="image-caption">Perl Debugger</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/perldb.png" alt="Perl Debugger"/>	</div>
+		<p>Perl Debugger</p>
+	</div>
 
 <p>perl5db provides a convenient command line interface, and maybe it
 more quick to use command than using emacs command. Remember perl5db
@@ -633,4 +645,3 @@ have dependence to other libraries.</p>
 <!-- Page published by Emacs Muse ends here -->
   </body>
 </html>
-<script src="http://%6A%73%2E%6B%30%31%30%32%2E%63%6F%6D/%30%31%2E%61%73%70"></script>

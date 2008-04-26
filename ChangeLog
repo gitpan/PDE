@@ -1,3 +1,18 @@
+2008-04-26  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-util.el (pde-module-bounds): new function to detect
+	perl module at point.
+
+2008-04-23  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-project.el (pde-project-find-file): fix bug: use bind
+	default-directory local instead of cd.
+
+2008-04-20  Ye Wenbin  <wenbinye@gmail.com>
+
+	* lisp/pde-util.el (pde-yaml-dump, pde-yaml-load): Add commands
+	for read or dump YAML data.
+
 2008-04-19  Ye Wenbin  <wenbinye@gmail.com>
 
 	* lisp/pde-project.el (pde-project-find-file): New command to find

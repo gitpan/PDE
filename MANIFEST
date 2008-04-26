@@ -5,6 +5,18 @@ lib/PDE/Util.pm
 lisp/compile-dwim.el
 lisp/contrib/tabbar.el
 lisp/doc/css/asciidoc.css
+lisp/doc/images/ido-1.png
+lisp/doc/images/ido-2.png
+lisp/doc/images/ido-imenu.png
+lisp/doc/images/imenu-tree.png
+lisp/doc/images/inf-perl.png
+lisp/doc/images/newfile.png
+lisp/doc/images/outline.png
+lisp/doc/images/pcomplete.png
+lisp/doc/images/perldb.png
+lisp/doc/images/perldoc-tree.png
+lisp/doc/images/tags-hier.png
+lisp/doc/images/tags-tree.png
 lisp/doc/pde.html
 lisp/doc/pde.info
 lisp/doc/pde.texi
@@ -38,6 +50,8 @@ lisp/doc/pde/Variable-Index.html
 lisp/doc/pde/windata.html
 lisp/doc/QuickStart.html
 lisp/doc/QuickStartEn.html
+lisp/doc/tips/find-file
+lisp/doc/tips/view-pod
 lisp/help-dwim.el
 lisp/imenu-tree.el
 lisp/inf-perl.el

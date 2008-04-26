@@ -158,7 +158,8 @@ With prefix argument, to rebuild the cache."
         (push (cons dir file-list) pde-file-list-cache)))
     (let ((file (expand-file-name (ido-completing-read "Find file: " (cdr file-list) nil t) dir)))
       (if (file-directory-p file)
-          (progn (cd file) (ido-find-file))
+          (let ((default-directory file))
+            (ido-find-file))
         (find-file file)))))
 
 (provide 'pde-project)

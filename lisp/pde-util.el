@@ -44,6 +44,18 @@
   :type 'directory
   :group 'pde)
 
+
+(defcustom pde-module-regexp
+  "\\([a-zA-Z]\\([a-zA-Z0-9]+\\)?::\\)*[a-zA-Z]\\([a-zA-Z0-9]+\\)?"
+  :type 'regexp
+  :group 'pde)
+
+(defun pde-module-bounds ()
+  (let ((thing (thing-at-point-looking-at pde-module-regexp)))
+    (if thing
+        (cons (match-beginning 0) (match-end 0)))))
+(put 'perl-module 'bounds-of-thing-at-point 'pde-module-bounds)
+
 ;;;###autoload 
 (defun pde-list-module-shadows ()
   "Display a list of modules that shadow other modules."
@@ -116,10 +128,82 @@
 (defun pde-search-cpan (mod)
   "Search anything in CPAN."
   (interactive
-   (list (perldoc-read-module "Search CPAN")))
+   (list (let ((def (thing-at-point 'perl-module)))
+           (completing-read
+            (if def
+                (format "Search CPAN(default %s):" def)
+              "Search CPAN")
+            perldoc-obarray nil nil nil nil def))))
   (when (> (length mod) 0)
     (browse-url (format "http://search.cpan.org/search?query=%s&mode=all"
                         (url-hexify-string mod)))))
+
+(defun pde-call-process-region (beg end &optional replace src)
+  "Eval perl source and show the output.
+If SRC is given, eval the string instead of the text in the region.
+If REPLACE is non-nil, replace the region with the output.
+For example call the command on region:
+   print \"Hello World!\"
+will echo \"Hello World!\"
+"
+  (interactive "r\nP")
+  (let (str)
+    (or src (setq src (buffer-substring beg end)))
+    (with-temp-buffer
+      (setq proc (start-process "perl" (current-buffer) "perl"))
+      (process-send-string proc (concat src "\n"))
+      (process-send-eof proc)
+      (while (accept-process-output proc nil 100))
+      (setq str (buffer-string)))
+    (if (and (eq (process-status proc) 'exit)
+             replace)
+        (progn (delete-region beg end)
+               (insert str))
+      (message str))))
+
+(defun pde-yaml-dump (beg end replace)
+  "Read Perl data from region and dump as YAML.
+For example call the command on region:
+    {
+      'session' => {
+        'dbic_class' => 'AddressDB::Session',
+        'flash_to_stash' => '1'
+      }
+    }
+will turn out to be:
+   ---
+   session:
+     dbic_class: AddressDB::Session
+     flash_to_stash: 1
+"
+  (interactive "r\nP")
+  (let ((str (buffer-substring beg end))
+        (src "use YAML; my $var = %s; print Dump($var)\n"))
+    (pde-call-process-region beg end replace (format src str))))
+
+(defun pde-yaml-load (beg end replace)
+  "Read YAML data and dump as Perl data.
+For example call the command on region:
+   ---
+   session:
+     dbic_class: AddressDB::Session
+     flash_to_stash: 1
+will turn out to be:
+    $VAR1 = {
+      'session' => {
+        'dbic_class' => 'AddressDB::Session',
+        'flash_to_stash' => '1'
+      }
+    }
+"
+  (interactive "r\nP")
+  (let ((str (buffer-substring beg end))
+        (src "use YAML; use Data::Dumper; $Data::Dumper::Indent=1;\
+my @vars = Load(<<__YAML__);
+%s
+__YAML__
+print Dumper(@vars)\n"))
+    (pde-call-process-region beg end replace (format src str))))
 
 (autoload 'generate-file-autoloads "autoload")
 ;;;###autoload 
@@ -131,5 +215,32 @@
       (generate-file-autoloads file))
     (write-region (point-min) (point-max)
                   (concat lisp-dir "/" "pde-loaddefs.el"))))
+
+(defvar pde-tip-index 0
+  "Indicate which tip should display")
+
+(defun pde-tip (&optional arg)
+  (interactive "P")
+  (let ((files (directory-files (concat pde-load-path "doc/tips/") t "^[^.]")))
+    (save-excursion
+      (with-help-window (help-buffer)
+        (with-temp-buffer
+          (if arg
+              (while files
+                (insert-file-contents (car files))
+                (setq files (cdr files))
+                (goto-char (point-max))
+                (insert "\n")
+                (when files
+                  (insert (make-string 70 ?=))
+                  (insert "\n\n")))
+            (setq pde-tip-index (1+ pde-tip-index))
+            (if (>= pde-tip-index (length files))
+                (setq pde-tip-index 0))
+            (insert-file-contents (nth pde-tip-index files)))
+          (princ (buffer-string)))
+        (with-current-buffer standard-output
+          (buffer-string))))))
+
 (provide 'pde-util)
 ;;; pde-util.el ends here

